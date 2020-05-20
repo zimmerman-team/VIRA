@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react",
+    "baseUrl": "src",
+    "typeRoots": [
+      "./typings",
+      "node_modules/@types",
+      "@types/testing-library__cypress"
+      // "cypress"
+    ]
+  },
+  "include": ["src"],
+  "exclude": [
+    "build",
+    "scripts",
+    "config",
+    ".storybook",
+    "node_modules",
+    "node_modules/@emotion",
+    "**/*.spec.ts",
+    "@nivo/bar",
+    ".vscode",
+    "cypress",
+    ".history",
+    "e2e",
+    "etc",
+    "public",
+    ".git"
+  ]
+}
