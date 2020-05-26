@@ -227,7 +227,7 @@ async function checkAndAddProjects(data: any) {
     let count = 0;
     const totalCount = data.length;
     data.forEach((project: any) => {
-      Project.findOne({ project_number: project.project_id }).then(
+      Project.findOne({ project_number: project.project_id.toString() }).then(
         (fProject: any, err1: any) => {
           Organisation.findOne({
             organisation_name: project.organisation,

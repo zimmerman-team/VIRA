@@ -57,6 +57,7 @@
     "test-api": "jest --detectOpenHandles --runTestsByPath ./server/__test__/*.spec.ts",
     "start-back-test": "ts-node --project 'nodetsconfig.json' server/server",
     "start-test-api": "start-server-and-test start-back-test http://localhost:4200/api test-api",
+    "import-data": "ts-node --project 'nodetsconfig.json' server/scripts/loadInitialData.ts",
     "init-data": "ts-node --project 'nodetsconfig.json' server/scripts/loadInitialData.ts",
     "cypress:open": "cypress open",
     "cypress:record": "cypress run --record --key 30a16df3-0b07-4a7e-bd9c-d6a60c8c8354"
