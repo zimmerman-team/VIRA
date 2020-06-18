@@ -1,17 +1,40 @@
 version: 2.1
-orbs:
-  node: circleci/node@1.1.6
+
 jobs:
-  build-and-test:
-    executor:
-      name: node/default
+  deploy:
+    docker:
+      - image: instrumentisto/rsync-ssh
+    resource_class: small
+    working_directory: ~/project
     steps:
-      - checkout
-      - node/with-cache:
-          steps:
-            - run: npm install
-#            - run: npm test
+      - attach_workspace:
+          at: ~/
+      - run: eval ssh-agent -s
+      - run: ssh -o StrictHostKeyChecking=no zz@206.189.241.202 exit
+      - run:
+          name: Transfer build to digital ocean instance
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              echo 'export REACT_APP_PROJECT_URL="$REACT_APP_PROJECT_URL_STAGING"' >> $BASH_ENV
+              echo 'export REACT_APP_BACKEND_URL="$REACT_APP_BACKEND_URL_STAGING"' >> $BASH_ENV
+              echo 'export REACT_APP_BACKEND_PORT="$REACT_APP_BACKEND_PORT_STAGING"' >> $BASH_ENV
+              echo 'export REACT_APP_MONGO_DB_URL="$REACT_APP_MONGO_DB_URL_STAGING"' >> $BASH_ENV
+              ssh "$SSH_USER"@"$SSH_HOST_STAGING" "cd ~/insinger-staging/; git checkout .; git pull; git checkout ${CIRCLE_BRANCH}; yarn install;"
+            elif [ "${CIRCLE_BRANCH}" == "develop" ]; then
+              echo 'export REACT_APP_PROJECT_URL="$REACT_APP_PROJECT_URL_TEST"' >> $BASH_ENV
+              echo 'export REACT_APP_BACKEND_URL="$REACT_APP_BACKEND_URL_TEST"' >> $BASH_ENV
+              echo 'export REACT_APP_BACKEND_PORT="$REACT_APP_BACKEND_PORT_TEST"' >> $BASH_ENV
+              echo 'export REACT_APP_MONGO_DB_URL="$REACT_APP_MONGO_DB_URL_TEST"' >> $BASH_ENV
+              ssh "$SSH_USER"@"$SSH_HOST_STAGING" "cd ~/insinger-test/; git checkout .; git pull; git checkout ${CIRCLE_BRANCH}; yarn install;"
+            else
+              echo 'export REACT_APP_PROJECT_URL="$REACT_APP_PROJECT_URL_DEV"' >> $BASH_ENV
+              echo 'export REACT_APP_BACKEND_URL="$REACT_APP_BACKEND_URL_DEV"' >> $BASH_ENV
+              echo 'export REACT_APP_BACKEND_PORT="$REACT_APP_BACKEND_PORT_DEV"' >> $BASH_ENV
+              echo 'export REACT_APP_MONGO_DB_URL="$REACT_APP_MONGO_DB_URL_DEV"' >> $BASH_ENV
+              ssh "$SSH_USER"@"$SSH_HOST_STAGING" "cd ~/insinger-build/; git checkout .; git pull; git checkout ${CIRCLE_BRANCH}; yarn install;"    
+            fi
+
 workflows:
   build-and-test:
     jobs:
-      - build-and-test
+      - deploy
