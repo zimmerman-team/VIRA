@@ -19,22 +19,68 @@ jobs:
               echo 'export REACT_APP_BACKEND_URL="$REACT_APP_BACKEND_URL_STAGING"' >> $BASH_ENV
               echo 'export REACT_APP_BACKEND_PORT="$REACT_APP_BACKEND_PORT_STAGING"' >> $BASH_ENV
               echo 'export REACT_APP_MONGO_DB_URL="$REACT_APP_MONGO_DB_URL_STAGING"' >> $BASH_ENV
-              ssh "$SSH_USER"@"$SSH_HOST_STAGING" "cd ~/insinger-staging/; git checkout .; git pull; git checkout ${CIRCLE_BRANCH}; yarn install;"
+              ssh "$SSH_USER"@"$SSH_HOST_STAGING" "cd ~/insinger-backend-staging/; git checkout .; git pull; git checkout ${CIRCLE_BRANCH}; yarn install;"
             elif [ "${CIRCLE_BRANCH}" == "develop" ]; then
               echo 'export REACT_APP_PROJECT_URL="$REACT_APP_PROJECT_URL_TEST"' >> $BASH_ENV
               echo 'export REACT_APP_BACKEND_URL="$REACT_APP_BACKEND_URL_TEST"' >> $BASH_ENV
               echo 'export REACT_APP_BACKEND_PORT="$REACT_APP_BACKEND_PORT_TEST"' >> $BASH_ENV
               echo 'export REACT_APP_MONGO_DB_URL="$REACT_APP_MONGO_DB_URL_TEST"' >> $BASH_ENV
-              ssh "$SSH_USER"@"$SSH_HOST_STAGING" "cd ~/insinger-test/; git checkout .; git pull; git checkout ${CIRCLE_BRANCH}; yarn install;"
+              ssh "$SSH_USER"@"$SSH_HOST_STAGING" "cd ~/insinger-backend-test/; git checkout .; git pull; git checkout ${CIRCLE_BRANCH}; yarn install;"
             else
               echo 'export REACT_APP_PROJECT_URL="$REACT_APP_PROJECT_URL_DEV"' >> $BASH_ENV
               echo 'export REACT_APP_BACKEND_URL="$REACT_APP_BACKEND_URL_DEV"' >> $BASH_ENV
               echo 'export REACT_APP_BACKEND_PORT="$REACT_APP_BACKEND_PORT_DEV"' >> $BASH_ENV
               echo 'export REACT_APP_MONGO_DB_URL="$REACT_APP_MONGO_DB_URL_DEV"' >> $BASH_ENV
-              ssh "$SSH_USER"@"$SSH_HOST_STAGING" "cd ~/insinger-build/; git checkout .; git pull; git checkout ${CIRCLE_BRANCH}; yarn install;"    
+              ssh "$SSH_USER"@"$SSH_HOST_STAGING" "cd ~/insinger-backend-dev/; git checkout .; git pull; git checkout ${CIRCLE_BRANCH}; yarn install;"    
             fi
 
+  test:
+    docker:
+      - image: circleci/node:12.14.1
+      - image: circleci/mongo:3.6.2-jessie
+    working_directory: ~/test
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install packages
+          command: yarn install
+      - run:
+          name: Load environment variables
+          command: |
+            echo 'export REACT_APP_PROJECT_URL=http://localhost:3000' >> $BASH_ENV
+            echo 'export REACT_APP_BACKEND_URL=http://localhost:4200' >> $BASH_ENV
+            echo 'export REACT_APP_BACKEND_PORT=4200' >> $BASH_ENV
+            echo 'export REACT_APP_MONGO_DB_URL=mongodb://localhost:27017/insinger' >> $BASH_ENV
+            echo 'export REACT_APP_POSTMARK_CLIENT_ID=eb6520ea-eb38-4a11-b1f3-328cdee3ca57' >> $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: Run data script
+          command: yarn init-data
+      - run:
+          name: Run express-js app
+          command: yarn start-test-api
+
+  release:
+    docker:
+      - image: circleci/node:12.14.1-stretch-browsers
+    working_directory: ~/project
+    steps:
+      - checkout
+      - run: npx semantic-release
+
 workflows:
-  build-and-test:
+  test-and-deploy:
     jobs:
-      - deploy
+      - test
+      - deploy:
+          requires:
+            - test
+      - release:
+          requires:
+            - test
+            - deploy
+          filters:
+            branches:
+              only: master
