@@ -14,10 +14,10 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react",
-    "baseUrl": "src",
+    "baseUrl": "server",
     "typeRoots": ["./typings", "node_modules/@types"]
   },
-  "include": ["src"],
+  "include": ["server"],
   "exclude": [
     "build",
     "scripts",

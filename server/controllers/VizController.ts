@@ -6,9 +6,9 @@ import groupBy from 'lodash/groupBy';
 import findIndex from 'lodash/findIndex';
 const Report = require('../models/report');
 import { isArray } from '../utils/general';
-import { ProjectPalette } from '../../src/app/theme';
+import { Colors } from '../assets/colors';
 import { countryFeaturesData } from '../config/countryFeatures';
-import { policyPriorities } from '../../src/app/modules/report/sub-modules/policy-priorities/mock';
+import { policyPriorities } from '../assets/mock/policyPriorities';
 import { sdgMapModel, sdgmap } from '../utils/sdgmap';
 
 export function getPolicyPriorityBarChartAPI(req: any, res: any) {
@@ -39,7 +39,7 @@ export function getPolicyPriorityBarChartAPI(req: any, res: any) {
                 ? (totTarget - totCommitted) * -1
                 : totTarget - totCommitted,
             value3: totBudget,
-            value1Color: ProjectPalette.primary.main,
+            value1Color: Colors.primary.main,
             value2Color: '#05c985',
             tooltip: {
               title: key,
@@ -116,9 +116,9 @@ export function getPolicyPriorityBarChart(req: any, res: any) {
               value2: totDiff < 0 ? totDiff * -1 : totDiff,
               value3: totBudget,
               value4: totInsingerCommitment,
-              value1Color: ProjectPalette.primary.main,
-              value2Color: totDiff > 0 ? ProjectPalette.grey[500] : '#05c985',
-              value4Color: ProjectPalette.chart.darkSkyBlue,
+              value1Color: Colors.primary.main,
+              value2Color: totDiff > 0 ? Colors.grey[500] : '#05c985',
+              value4Color: Colors.chart.darkSkyBlue,
               tooltip: {
                 title: key,
                 items: [
@@ -164,9 +164,9 @@ export function getPolicyPriorityBarChart(req: any, res: any) {
               value2: 0,
               value3: 0,
               value4: 0,
-              value1Color: ProjectPalette.primary.main,
-              value2Color: ProjectPalette.grey[500],
-              value4Color: ProjectPalette.chart.darkSkyBlue,
+              value1Color: Colors.primary.main,
+              value2Color: Colors.grey[500],
+              value4Color: Colors.chart.darkSkyBlue,
               tooltip: {},
             });
           } else {

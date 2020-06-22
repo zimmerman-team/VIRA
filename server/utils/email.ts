@@ -26,10 +26,7 @@ export function sendMail(
         {
           Content: fs
             .readFileSync(
-              path.resolve(
-                __dirname,
-                '../../src/app/assets/images/insinger_logo.png'
-              )
+              path.resolve(__dirname, '../assets/images/insinger_logo.png')
             )
             .toString('base64'),
           Name: 'insinger_logo.png',
@@ -56,10 +53,7 @@ export function sendForgotPassMail(email: string, link: string) {
       {
         Content: fs
           .readFileSync(
-            path.resolve(
-              __dirname,
-              '../../src/app/assets/images/insinger_logo.png'
-            )
+            path.resolve(__dirname, '../assets/images/insinger_logo.png')
           )
           .toString('base64'),
         Name: 'insinger_logo.png',

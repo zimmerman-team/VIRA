@@ -1,13 +1,12 @@
 {
-  "name": "insinger-frontend",
+  "name": "insinger-backend",
   "version": "0.1.0",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/zimmerman-zimmerman/zz-frontend-boilerplate.git"
+    "url": "https://github.com/zimmerman-zimmerman/insinger-backend.git"
   },
   "dependencies": {
-    "@material-ui/core": "^4.9.14",
     "axios": "^0.19.2",
     "cors": "^2.8.5",
     "csvtojson": "^2.0.10",
@@ -50,24 +49,20 @@
     "typescript": "^3.8.2"
   },
   "scripts": {
-    "analyze": "source-map-explorer 'build/static/js/*.js'",
     "depcheck": "depcheck",
-    "start-back": "nodemon --watch 'server/' --ignore 'server/__test__' --exec ts-node --project 'nodetsconfig.json' server/server.ts",
-    "start-fullstack": "yarn start & yarn start-back",
+    "start": "nodemon --watch 'server/' --ignore 'server/__test__' --exec ts-node --project 'nodetsconfig.json' server/server.ts",
     "test-api": "jest --detectOpenHandles --runTestsByPath ./server/__test__/*.spec.ts",
     "start-back-test": "ts-node --project 'nodetsconfig.json' server/server",
     "start-test-api": "start-server-and-test start-back-test http://localhost:4200/api test-api",
     "import-data": "ts-node --project 'nodetsconfig.json' server/scripts/loadInitialData.ts",
-    "init-data": "ts-node --project 'nodetsconfig.json' server/scripts/loadInitialData.ts",
-    "cypress:open": "cypress open",
-    "cypress:record": "cypress run --record --key 30a16df3-0b07-4a7e-bd9c-d6a60c8c8354"
+    "init-data": "ts-node --project 'nodetsconfig.json' server/scripts/loadInitialData.ts"
   },
   "eslintConfig": {
     "settings": {
       "import/resolver": {
         "node": {
           "paths": [
-            "src"
+            "server"
           ]
         }
       }

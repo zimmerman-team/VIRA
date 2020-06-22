@@ -24,7 +24,6 @@ module.exports = {
         'node_modules',
         'public',
         'scenarios',
-        'src',
         '.gitignore',
         '.prettierignore',
         'cypress.json',
