@@ -58,9 +58,9 @@ jobs:
       - run:
           name: Run data script
           command: yarn init-data
-      - run:
-          name: Run express-js app
-          command: yarn start-test-api
+      # - run:
+      #     name: Run express-js app
+      #     command: yarn start-test-api
 
   release:
     docker:
