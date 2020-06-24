@@ -1,17 +1,77 @@
 version: 2.1
-orbs:
-  node: circleci/node@1.1.6
+
 jobs:
-  build-and-test:
-    executor:
-      name: node/default
+  deploy:
+    docker:
+      - image: instrumentisto/rsync-ssh
+    resource_class: small
+    working_directory: ~/project
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: eval ssh-agent -s
+      - run: ssh -o StrictHostKeyChecking=no zz@206.189.241.202 exit
+      - run:
+          name: Transfer build to digital ocean instance
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              ssh "$SSH_USER"@"$SSH_HOST_STAGING" "cd ~/insinger-backend-staging/; git checkout .; git pull; git checkout ${CIRCLE_BRANCH}; yarn install;"
+            elif [ "${CIRCLE_BRANCH}" == "develop" ]; then
+              ssh "$SSH_USER"@"$SSH_HOST_STAGING" "cd ~/insinger-backend-test/; git checkout .; git pull; git checkout ${CIRCLE_BRANCH}; yarn install;"
+            else
+              ssh "$SSH_USER"@"$SSH_HOST_STAGING" "cd ~/insinger-backend-dev/; git checkout .; git pull; git checkout ${CIRCLE_BRANCH}; yarn install;"    
+            fi
+
+  test:
+    docker:
+      - image: circleci/node:12.14.1
+      - image: circleci/mongo:3.6.2-jessie
+    working_directory: ~/test
     steps:
       - checkout
-      - node/with-cache:
-          steps:
-            - run: npm install
-#            - run: npm test
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install packages
+          command: yarn install
+      - run:
+          name: Load environment variables
+          command: |
+            echo 'export REACT_APP_PROJECT_URL=http://localhost:3000' >> $BASH_ENV
+            echo 'export REACT_APP_BACKEND_URL=http://localhost:4200' >> $BASH_ENV
+            echo 'export REACT_APP_BACKEND_PORT=4200' >> $BASH_ENV
+            echo 'export REACT_APP_MONGO_DB_URL=mongodb://localhost:27017/insinger' >> $BASH_ENV
+            echo 'export REACT_APP_POSTMARK_CLIENT_ID=eb6520ea-eb38-4a11-b1f3-328cdee3ca57' >> $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: Run data script
+          command: yarn init-data
+
+      # todo: currently failling, needs a further look
+      # - run:
+      #     name: Run express-js app
+      #     command: yarn start-test-api
+
+  release:
+    docker:
+      - image: circleci/node:12.14.1-stretch-browsers
+    working_directory: ~/project
+    steps:
+      - checkout
+      - run: npx semantic-release
+
 workflows:
-  build-and-test:
+  test-and-deploy:
     jobs:
-      - build-and-test
+      - test
+      - deploy:
+          requires:
+            - test
+      - release:
+          requires:
+            - test
+            - deploy
+          filters:
+            branches:
+              only: master
+# adf
