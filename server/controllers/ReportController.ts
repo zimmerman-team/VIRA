@@ -36,7 +36,15 @@ export function getReports(req: any, res: any) {
       if (err) {
         res(JSON.stringify({ status: 'error', message: err.message }));
       }
-      res(JSON.stringify({ status: 'success', data: reports }));
+      res(
+        JSON.stringify({
+          status: 'success',
+          data: reports.map((report: any) => ({
+            ...report._doc,
+            unix_date: new Date(report._doc.date).getTime(),
+          })),
+        })
+      );
     });
 }
 
