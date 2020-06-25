@@ -61,7 +61,10 @@ export function modifyResponsiblePerson(PerObj: any, newData: any) {
     if (PerObj.role !== newData.role) {
       PerObj.role = newData.role;
     }
-    if (PerObj.organisation !== get(newData.Organisation, '_id', null)) {
+    if (
+      PerObj.organisation !==
+      get(newData.Organisation, '_id', PerObj.organisation)
+    ) {
       PerObj.organisation = newData.Organisation;
     }
     PerObj.save((err: any, doc: any) => {

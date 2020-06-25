@@ -7,7 +7,9 @@
     "url": "https://github.com/zimmerman-zimmerman/insinger-backend.git"
   },
   "dependencies": {
+    "@types/colors": "^1.2.1",
     "axios": "^0.19.2",
+    "colors": "^1.4.0",
     "cors": "^2.8.5",
     "csvtojson": "^2.0.10",
     "dotenv": "^8.2.0",
@@ -56,8 +58,8 @@
     "test-api": "jest --detectOpenHandles --runTestsByPath ./server/__test__/*.spec.ts",
     "start-back-test": "ts-node --project 'nodetsconfig.json' server/server",
     "start-test-api": "start-server-and-test start-back-test http://localhost:4200/api test-api",
-    "import-data": "ts-node --project 'nodetsconfig.json' server/scripts/loadInitialData.ts",
-    "init-data": "ts-node --project 'nodetsconfig.json' server/scripts/loadInitialData.ts"
+    "import-data": "ts-node --project 'nodetsconfig.json' server/scripts/load_initial_data.ts",
+    "check-invite-new-users": "ts-node --project 'nodetsconfig.json' server/scripts/check_invite_new_users.ts"
   },
   "eslintConfig": {
     "settings": {

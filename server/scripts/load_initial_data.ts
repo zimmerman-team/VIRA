@@ -11,9 +11,8 @@ const Project = require('../models/project');
 const ResponsiblePerson = require('../models/responsiblePerson');
 
 // utils
-const fs = require('fs');
-const csvtojson = require('csvtojson');
 import groupBy from 'lodash/groupBy';
+const csvtojson = require('csvtojson');
 import {
   modifyOrganisation,
   modifyResponsiblePerson,
@@ -153,40 +152,51 @@ async function checkAndAddResponsinblePersons(data: any) {
     let count = 0;
     const totalCount = Object.keys(groupedResponsiblePersons).length;
     Object.keys(groupedResponsiblePersons).forEach((keyEmail: any) => {
-      Object.keys(groupedResponsiblePersons[keyEmail]).forEach((key: any) => {
-        const person = groupedResponsiblePersons[keyEmail][key];
-        ResponsiblePerson.findOne({
-          email: keyEmail,
-          family_name: person.family_name,
-        }).then((fPerson: any, err: any) => {
-          Organisation.findOne({
-            organisation_name: person.organisation,
-          }).then((organisation: any) => {
+      let groupedResponsiblePersonsOrgs = groupBy(
+        groupedResponsiblePersons[keyEmail],
+        'organisation'
+      );
+      const personOrgsKeys = Object.keys(groupedResponsiblePersonsOrgs);
+      let count2 = 0;
+      const totalCount2 = personOrgsKeys.length;
+      personOrgsKeys.forEach((personOrgsKey: string) => {
+        const instance = groupedResponsiblePersonsOrgs[personOrgsKey][0];
+        Organisation.findOne({
+          organisation_name: instance.organisation,
+        }).then((organisation: any) => {
+          ResponsiblePerson.findOne({
+            email: instance.email,
+            organisation: organisation,
+            family_name: instance.family_name,
+          }).then((fPerson: any, err: any) => {
             if (!fPerson) {
               new ResponsiblePerson({
-                family_name: person.family_name,
-                initials: person.initial,
-                name_insertion: person.insertion,
-                title: person.title,
-                email: person.email,
-                login_email: person.login_email,
-                sex: person.sex,
-                role: person.role,
+                family_name: instance.family_name,
+                initials: instance.initial,
+                name_insertion: instance.insertion,
+                title: instance.title,
+                email: instance.email,
+                login_email: instance.login_email,
+                sex: instance.sex,
+                role: instance.role,
                 organisation: organisation,
               }).save((err: any, doc: any) => {
-                count++;
-                if (count === totalCount) {
-                  resolve();
+                count2++;
+                if (count2 === totalCount2) {
+                  count++;
+                  if (count === totalCount) {
+                    resolve();
+                  }
                 }
               });
             } else {
-              modifyResponsiblePerson(fPerson, {
-                ...person,
-                Organisation: organisation,
-              }).then(() => {
-                count++;
-                if (count === totalCount) {
-                  resolve();
+              modifyResponsiblePerson(fPerson, instance).then(() => {
+                count2++;
+                if (count2 === totalCount2) {
+                  count++;
+                  if (count === totalCount) {
+                    resolve();
+                  }
                 }
               });
             }
@@ -279,10 +289,12 @@ async function checkAndAddProjects(data: any) {
 
 // main function
 function start() {
-  console.log('start');
+  console.log('start load_initial_data.ts script');
   csvtojson()
-    .fromFile(`${__dirname}/insinger_data.csv`)
+    .fromFile(`${__dirname}/new_test.csv`)
     .then((csvData: any) => {
+      // emptyDB()
+      //   .then(() => {
       checkAndAddOrgTypes(csvData)
         .then(() => {
           checkAndAddOrgs(csvData)
@@ -303,6 +315,8 @@ function start() {
             .catch(err => console.log(err));
         })
         .catch(err => console.log(err));
+      // })
+      // .catch(err => console.log(err));
     });
 }
 
