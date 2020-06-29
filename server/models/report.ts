@@ -7,6 +7,8 @@ const targetBeneficiary = require('../models/targetBeneficiary');
 // @ts-ignore
 const policyPriority = require('../models/policyPriority');
 // @ts-ignore
+const funderSchema = require('../models/funder');
+// @ts-ignore
 const location = require('../models/location');
 // @ts-ignore
 const project = require('../models/project');
@@ -53,6 +55,7 @@ const ReportSchema = new Schema({
   reportID: { type: Number, required: true },
   place_name: { type: String, required: false },
   isDraft: { type: Boolean, default: false, required: true },
+  funder: { type: Schema.Types.ObjectId, ref: funderSchema },
 });
 
 ReportSchema.plugin(autoIncrement.plugin, {
@@ -76,6 +79,10 @@ module.exports.get = (callback: any, limit: any) => {
     })
     .populate({
       path: 'target_beneficiaries',
+      select: 'name',
+    })
+    .populate({
+      path: 'funder',
       select: 'name',
     })
     .limit(limit);
