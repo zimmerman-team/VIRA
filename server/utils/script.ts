@@ -114,6 +114,9 @@ export function modifyProject(ProjObj: any, newData: any) {
     if (ProjObj.category !== get(newData.Category, '_id', null)) {
       ProjObj.category = newData.Category;
     }
+    if (ProjObj.person !== get(newData.Person, '_id', null)) {
+      ProjObj.person = newData.Person;
+    }
 
     ProjObj.save((err: any, doc: any) => {
       resolve();

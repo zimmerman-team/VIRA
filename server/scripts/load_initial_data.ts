@@ -242,44 +242,50 @@ async function checkAndAddProjects(data: any) {
           Organisation.findOne({
             organisation_name: project.organisation,
           }).then((organisation: any, err: any) => {
-            ProjectCategory.findOne({ name: project.category }).then(
-              (category: any, err: any) => {
-                if (!fProject) {
-                  new Project({
-                    project_number: project.project_id,
-                    project_name: project.project,
-                    project_description: project.project_description,
-                    duration: project.duration,
-                    start_date: project.start_date,
-                    end_date: project.end_date,
-                    total_amount: project.total_amount,
-                    decision_date: project.decision_date,
-                    decision: project.decision,
-                    allocated_amount: project.allocated_amount,
-                    released_amount: project.released_amount,
-                    paid_amount: project.paid_amount,
-                    organisation: organisation,
-                    category: category,
-                  }).save((err: any, doc: any) => {
-                    count++;
-                    if (count === totalCount) {
-                      resolve();
-                    }
-                  });
-                } else {
-                  modifyProject(fProject, {
-                    ...project,
-                    Organisation: organisation,
-                    Category: category,
-                  }).then(() => {
-                    count++;
-                    if (count === totalCount) {
-                      resolve();
-                    }
-                  });
+            ResponsiblePerson.findOne({
+              email: project.email,
+            }).then((person: any, err: any) => {
+              ProjectCategory.findOne({ name: project.category }).then(
+                (category: any, err: any) => {
+                  if (!fProject) {
+                    new Project({
+                      project_number: project.project_id,
+                      project_name: project.project,
+                      project_description: project.project_description,
+                      duration: project.duration,
+                      start_date: project.start_date,
+                      end_date: project.end_date,
+                      total_amount: project.total_amount,
+                      decision_date: project.decision_date,
+                      decision: project.decision,
+                      allocated_amount: project.allocated_amount,
+                      released_amount: project.released_amount,
+                      paid_amount: project.paid_amount,
+                      organisation: organisation,
+                      category: category,
+                      person: person,
+                    }).save((err: any, doc: any) => {
+                      count++;
+                      if (count === totalCount) {
+                        resolve();
+                      }
+                    });
+                  } else {
+                    modifyProject(fProject, {
+                      ...project,
+                      Organisation: organisation,
+                      Category: category,
+                      Person: person,
+                    }).then(() => {
+                      count++;
+                      if (count === totalCount) {
+                        resolve();
+                      }
+                    });
+                  }
                 }
-              }
-            );
+              );
+            });
           });
         }
       );
@@ -293,20 +299,22 @@ function start() {
   csvtojson()
     .fromFile(`${__dirname}/new_test.csv`)
     .then((csvData: any) => {
-      // emptyDB()
-      //   .then(() => {
-      checkAndAddOrgTypes(csvData)
+      emptyDB()
         .then(() => {
-          checkAndAddOrgs(csvData)
+          checkAndAddOrgTypes(csvData)
             .then(() => {
-              checkAndAddResponsinblePersons(csvData)
+              checkAndAddOrgs(csvData)
                 .then(() => {
-                  checkAndAddProjectCategories(csvData)
+                  checkAndAddResponsinblePersons(csvData)
                     .then(() => {
-                      checkAndAddProjects(csvData).then(() => {
-                        console.log('exit');
-                        process.exit(0);
-                      });
+                      checkAndAddProjectCategories(csvData)
+                        .then(() => {
+                          checkAndAddProjects(csvData).then(() => {
+                            console.log('exit');
+                            process.exit(0);
+                          });
+                        })
+                        .catch(err => console.log(err));
                     })
                     .catch(err => console.log(err));
                 })
@@ -315,8 +323,6 @@ function start() {
             .catch(err => console.log(err));
         })
         .catch(err => console.log(err));
-      // })
-      // .catch(err => console.log(err));
     });
 }
 

@@ -59,8 +59,6 @@ function inviteGranteeNewUsers(
         },
       })
       .then((response: any) => {
-        console.log('--------------------------------');
-        console.log('Organisation: ', org.name);
         const members = response.data.users;
         ResponsiblePerson.find(
           { organisation: mongoose.Types.ObjectId(org.orgMongoId) },
@@ -73,23 +71,23 @@ function inviteGranteeNewUsers(
             }
             const usersToInvite = filter(
               persons,
-              p =>
-                !find(members, { email: p.email }) &&
-                !find(invitedEmails, (ie: string) => ie === p.email)
+              p => !find(members, { email: p.email })
             );
             let count = 0;
             const totalCount = usersToInvite.length;
+            console.log('--------------------------------');
+            console.log(`Organisation: ${org.name}`.info.white);
             if (usersToInvite.length === 0) {
               console.log('no users or already invited');
               resolve();
             }
             usersToInvite.forEach((person: any) => {
               console.log(person.email);
-              invitedEmails.push(person.email);
-              count++;
-              if (count === totalCount) {
-                resolve();
-              }
+              // 2 loc below only for testing purposes
+              // count++;
+              // if (count === totalCount) {
+              //   resolve();
+              // }
               axios
                 .post(
                   `${process.env.REACT_APP_AUTH_DOMAIN}/api/v2/users`,
@@ -121,34 +119,78 @@ function inviteGranteeNewUsers(
                     },
                   }
                 )
-                .then(response => {
+                .then((response: any) => {
                   if (response.status === 201) {
-                    sendWelcomeEmail(
-                      response.data.user_id,
-                      person.title,
-                      person.family_name,
-                      person.email
-                    );
-                    addUserToGroup(response.data.user_id, org.id);
-                    assignRoleToUser(response.data.user_id, roleId);
-                  } else if (response.status === 409) {
-                    const fUser = find(users, { email: person.email });
+                    invitedEmails.push({
+                      email: person.email,
+                      user_id: response.data.user_id,
+                    });
+                    return new Promise((resolve2, reject) => {
+                      sendWelcomeEmail(
+                        response.data.user_id,
+                        person.title,
+                        person.family_name,
+                        person.email,
+                        resolve2
+                      );
+                    }).then(() => {
+                      return new Promise((resolve3, reject) => {
+                        addUserToGroup(response.data.user_id, org.id, resolve3);
+                      }).then(() => {
+                        return new Promise((resolve4, reject) => {
+                          assignRoleToUser(
+                            response.data.user_id,
+                            roleId,
+                            resolve4
+                          );
+                        }).then(() => {
+                          count++;
+                          if (count === totalCount) {
+                            resolve();
+                          }
+                        });
+                      });
+                    });
+                  } else {
+                    let fUser = find(users, { email: person.email });
+                    fUser = fUser
+                      ? fUser
+                      : find(invitedEmails, { email: person.email });
                     if (fUser) {
-                      addUserToGroup(fUser.user_id, org.id);
+                      return new Promise((resolve5, reject) => {
+                        addUserToGroup(fUser.user_id, org.id, resolve5);
+                      }).then(() => {
+                        count++;
+                        if (count === totalCount) {
+                          resolve();
+                        }
+                      });
                     }
                   }
-                  count++;
-                  if (count === totalCount) {
-                    resolve();
-                  }
-                  return resolve(response.data);
                 })
-                .catch(error =>
-                  reject({
-                    error: error,
-                    message: 'Error in inviteGranteeNewUsers function | 1',
-                  })
-                );
+                .catch(error => {
+                  if (error.response.status === 409) {
+                    let fUser = find(users, { email: person.email });
+                    fUser = fUser
+                      ? fUser
+                      : find(invitedEmails, { email: person.email });
+                    if (fUser) {
+                      return new Promise((resolve5, reject) => {
+                        addUserToGroup(fUser.user_id, org.id, resolve5);
+                      }).then(() => {
+                        count++;
+                        if (count === totalCount) {
+                          resolve();
+                        }
+                      });
+                    }
+                  } else {
+                    reject({
+                      error: error,
+                      message: 'Error in inviteGranteeNewUsers function | 1',
+                    });
+                  }
+                });
             });
           }
         );

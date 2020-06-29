@@ -1,15 +1,17 @@
-const mongoose = require('mongoose');
-const Report = require('../models/report');
-const Project = require('../models/project');
-const Location = require('../models/location');
-const policyPriority = require('../models/policyPriority');
-const targetBeneficiary = require('../models/targetBeneficiary');
-import { countryFeaturesData } from '../config/countryFeatures';
+import get from 'lodash/get';
 import filter from 'lodash/filter';
-import findIndex from 'lodash/findIndex';
+const mongoose = require('mongoose');
 import consts from '../config/consts';
+const Report = require('../models/report');
 import { isArray } from '../utils/general';
+const Project = require('../models/project');
+const Organisation = require('../models/Org');
+const Location = require('../models/location');
 import { sdgMapModel, sdgmap } from '../utils/sdgmap';
+const policyPriority = require('../models/policyPriority');
+import { countryFeaturesData } from '../config/countryFeatures';
+const targetBeneficiary = require('../models/targetBeneficiary');
+const ResponsiblePerson = require('../models/responsiblePerson');
 
 const ppToSdg = consts.ppToSdg;
 
@@ -17,35 +19,134 @@ const ppToSdg = consts.ppToSdg;
 export function getReports(req: any, res: any) {
   const { projectID } = req.query;
 
-  let query = {};
-
   if (projectID) {
+    let query = {};
+
     if (isArray(projectID)) {
       query = { project: { $in: projectID } };
     } else {
       query = { project: projectID };
     }
-  }
 
-  Report.find(query)
-    .populate('location')
-    .populate('project')
-    .populate('target_beneficiaries')
-    .populate('policy_priority')
-    .exec((err: any, reports: any) => {
-      if (err) {
-        res(JSON.stringify({ status: 'error', message: err.message }));
-      }
-      res(
-        JSON.stringify({
-          status: 'success',
-          data: reports.map((report: any) => ({
-            ...report._doc,
-            unix_date: new Date(report._doc.date).getTime(),
-          })),
-        })
+    Report.find(query)
+      .populate('location')
+      .populate('project')
+      .populate('target_beneficiaries')
+      .populate('policy_priority')
+      .exec((err: any, reports: any) => {
+        if (err) {
+          res(JSON.stringify({ status: 'error', message: err.message }));
+        }
+        res(
+          JSON.stringify({
+            status: 'success',
+            data: reports.map((report: any) => ({
+              ...report._doc,
+              unix_date: new Date(report._doc.date).getTime(),
+            })),
+          })
+        );
+      });
+  } else {
+    if (
+      get(req.query, 'userRole', '').toLowerCase() ===
+      consts.roles.regular.toLowerCase()
+    ) {
+      ResponsiblePerson.findOne(
+        { email: req.query.userEmail },
+        (err: any, person: any) => {
+          Project.find({ person: person }, (err: any, projects: any) => {
+            Report.find({ project: { $in: projects } })
+              .populate('location')
+              .populate('project')
+              .populate('target_beneficiaries')
+              .populate('policy_priority')
+              .exec((err: any, reports: any) => {
+                if (err) {
+                  res(
+                    JSON.stringify({ status: 'error', message: err.message })
+                  );
+                }
+                res(
+                  JSON.stringify({
+                    status: 'success',
+                    data: reports.map((report: any) => ({
+                      ...report._doc,
+                      unix_date: new Date(report._doc.date).getTime(),
+                    })),
+                  })
+                );
+              });
+          });
+        }
       );
-    });
+    } else if (
+      get(req.query, 'userRole', '').toLowerCase() ===
+        consts.roles.admin.toLowerCase() ||
+      get(req.query, 'userRole', '').toLowerCase() ===
+        consts.roles.mod.toLowerCase()
+    ) {
+      ResponsiblePerson.find(
+        { email: req.query.userEmail },
+        (err: any, persons: any) => {
+          Organisation.find(
+            { _id: { $in: persons.map((p: any) => p.organisation) } },
+            (err: any, orgs: any) => {
+              Project.find(
+                { organisation: { $in: orgs.map((org: any) => org) } },
+                (err: any, projects: any) => {
+                  Report.find({ project: { $in: projects } })
+                    .populate('location')
+                    .populate('project')
+                    .populate('target_beneficiaries')
+                    .populate('policy_priority')
+                    .exec((err: any, reports: any) => {
+                      if (err) {
+                        res(
+                          JSON.stringify({
+                            status: 'error',
+                            message: err.message,
+                          })
+                        );
+                      }
+                      res(
+                        JSON.stringify({
+                          status: 'success',
+                          data: reports.map((report: any) => ({
+                            ...report._doc,
+                            unix_date: new Date(report._doc.date).getTime(),
+                          })),
+                        })
+                      );
+                    });
+                }
+              );
+            }
+          );
+        }
+      );
+    } else {
+      Report.find()
+        .populate('location')
+        .populate('project')
+        .populate('target_beneficiaries')
+        .populate('policy_priority')
+        .exec((err: any, reports: any) => {
+          if (err) {
+            res(JSON.stringify({ status: 'error', message: err.message }));
+          }
+          res(
+            JSON.stringify({
+              status: 'success',
+              data: reports.map((report: any) => ({
+                ...report._doc,
+                unix_date: new Date(report._doc.date).getTime(),
+              })),
+            })
+          );
+        });
+    }
+  }
 }
 
 // get report by id
@@ -54,7 +155,13 @@ export function getReport(req: any, res: any) {
 
   Report.findById(id)
     .populate('location')
-    .populate('project')
+    .populate({
+      path: 'project',
+      populate: {
+        path: 'person',
+        model: ResponsiblePerson,
+      },
+    })
     .populate('target_beneficiaries')
     .populate('policy_priority')
     .exec((err: any, report: any) => {

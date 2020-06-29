@@ -42,43 +42,43 @@ export function getAllUsers(req: any, res: any) {
         .then(response => {
           let result = response[0].data.users;
           const groups = response[1].data.groups;
-          // if (user.role === roles.admin) {
-          //   result = filter(response[0].data.users, d => {
-          //     let pass = false;
-          //     const dUserGroups = filter(groups, gr =>
-          //       some(gr.members, member => member === user.authId)
-          //     );
-          //     for (let c1 = 0; c1 < dUserGroups.length; c1++) {
-          //       for (let c2 = 0; c2 < dUserGroups[c1].members.length; c2++) {
-          //         if (
-          //           dUserGroups[c1].members[c2] === d.user_id &&
-          //           get(d, 'app_metadata.authorization.roles[0]', '') !==
-          //             roles.superAdm
-          //         ) {
-          //           pass = true;
-          //           break;
-          //         }
-          //         if (pass) break;
-          //       }
-          //     }
+          if (user.role === roles.admin) {
+            result = filter(response[0].data.users, d => {
+              let pass = false;
+              const dUserGroups = filter(groups, gr =>
+                some(gr.members, member => member === user.authId)
+              );
+              for (let c1 = 0; c1 < dUserGroups.length; c1++) {
+                for (let c2 = 0; c2 < dUserGroups[c1].members.length; c2++) {
+                  if (
+                    dUserGroups[c1].members[c2] === d.user_id &&
+                    get(d, 'app_metadata.authorization.roles[0]', '') !==
+                      roles.superAdm
+                  ) {
+                    pass = true;
+                    break;
+                  }
+                  if (pass) break;
+                }
+              }
 
-          //     return pass;
-          //   });
-          //   if (result.length === 0) {
-          //     const currentUserEmail = user.email;
-          //     const currentUserAuth0 = find(response[0].data.users, {
-          //       email: currentUserEmail,
-          //     });
-          //     result = [currentUserAuth0];
-          //   }
-          // }
-          // if (user.role === roles.regular || user.role === roles.mod) {
-          //   const currentUserEmail = user.email;
-          //   const currentUserAuth0 = find(response[0].data.users, {
-          //     email: currentUserEmail,
-          //   });
-          //   result = [currentUserAuth0];
-          // }
+              return pass;
+            });
+            if (result.length === 0) {
+              const currentUserEmail = user.email;
+              const currentUserAuth0 = find(response[0].data.users, {
+                email: currentUserEmail,
+              });
+              result = [currentUserAuth0];
+            }
+          }
+          if (user.role === roles.regular || user.role === roles.mod) {
+            const currentUserEmail = user.email;
+            const currentUserAuth0 = find(response[0].data.users, {
+              email: currentUserEmail,
+            });
+            result = [currentUserAuth0];
+          }
           return res(JSON.stringify(result));
         })
         .catch(error => genericError(error, res));
