@@ -13,7 +13,8 @@ const client: PostmarkTypes.ServerClient = new postmark.ServerClient(
 export function sendMail(
   data: any,
   templateId: number,
-  parentResolve: Function
+  parentResolve?: Function,
+  parentReject?: Function
 ) {
   client
     .sendEmailWithTemplate({
@@ -41,6 +42,9 @@ export function sendMail(
       return response;
     })
     .catch((error: any) => {
+      if (parentReject) {
+        parentReject(error);
+      }
       return error;
     });
 }

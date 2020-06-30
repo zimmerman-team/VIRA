@@ -87,14 +87,24 @@ function checkProjectsAndNotify(projects: any, users: any) {
                 link: `${process.env.REACT_APP_PROJECT_URL}/projects/${project.project_number}`,
               },
               18990738,
-              resolve2
+              resolve2,
+              reject2
             );
-          }).then((res: any) => {
-            count++;
-            if (count === totalCount) {
-              resolve();
-            }
-          });
+          })
+            .then((res: any) => {
+              count++;
+              if (count === totalCount) {
+                resolve();
+              }
+            })
+            .catch((err: any) => {
+              console.log('Error in checkProjectsAndNotify function | 1');
+              console.log(`${err}`.error.white);
+              count++;
+              if (count === totalCount) {
+                resolve();
+              }
+            });
         } else {
           count++;
           if (count === totalCount) {
