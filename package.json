@@ -19,6 +19,7 @@
     "mongoose": "^5.9.2",
     "mongoose-auto-increment": "^5.0.1",
     "multer": "^1.4.2",
+    "node-cron": "^2.0.3",
     "nodemon": "^2.0.2",
     "postmark": "2.5.0",
     "react": "^16.13.1",
@@ -59,7 +60,8 @@
     "start-back-test": "ts-node --project 'nodetsconfig.json' server/server",
     "start-test-api": "start-server-and-test start-back-test http://localhost:4200/api test-api",
     "import-data": "ts-node --project 'nodetsconfig.json' server/scripts/load_initial_data.ts",
-    "check-invite-new-users": "ts-node --project 'nodetsconfig.json' server/scripts/check_invite_new_users.ts"
+    "check-invite-new-users": "ts-node --project 'nodetsconfig.json' server/scripts/check_invite_new_users.ts",
+    "check-notify-user-projects": "ts-node --project 'nodetsconfig.json' server/scripts/check_notify_user_projects.ts"
   },
   "eslintConfig": {
     "settings": {

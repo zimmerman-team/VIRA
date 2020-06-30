@@ -128,7 +128,10 @@ export function sendWelcomeEmail(
           if (resolve) {
             resolve();
           }
-          return sendMail(name, surname, email, response.data.ticket);
+          return sendMail(
+            { name, surname, email, link: response.data.ticket },
+            15721543
+          );
         })
         .catch(error => {
           console.log('sendWelcomeEmail fail', error.response.data.message);

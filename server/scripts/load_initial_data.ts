@@ -31,6 +31,7 @@ const db = mongoose.connect(
     }
   }
 );
+mongoose.set('useCreateIndex', true);
 
 // clear database
 async function emptyDB() {
@@ -297,24 +298,22 @@ async function checkAndAddProjects(data: any) {
 function start() {
   console.log('start load_initial_data.ts script');
   csvtojson()
-    .fromFile(`${__dirname}/new_test.csv`)
+    .fromFile(`${__dirname}/test.csv`)
     .then((csvData: any) => {
-      emptyDB()
+      // emptyDB()
+      //   .then(() => {
+      checkAndAddOrgTypes(csvData)
         .then(() => {
-          checkAndAddOrgTypes(csvData)
+          checkAndAddOrgs(csvData)
             .then(() => {
-              checkAndAddOrgs(csvData)
+              checkAndAddResponsinblePersons(csvData)
                 .then(() => {
-                  checkAndAddResponsinblePersons(csvData)
+                  checkAndAddProjectCategories(csvData)
                     .then(() => {
-                      checkAndAddProjectCategories(csvData)
-                        .then(() => {
-                          checkAndAddProjects(csvData).then(() => {
-                            console.log('exit');
-                            process.exit(0);
-                          });
-                        })
-                        .catch(err => console.log(err));
+                      checkAndAddProjects(csvData).then(() => {
+                        console.log('exit');
+                        process.exit(0);
+                      });
                     })
                     .catch(err => console.log(err));
                 })
@@ -323,6 +322,8 @@ function start() {
             .catch(err => console.log(err));
         })
         .catch(err => console.log(err));
+      // })
+      // .catch(err => console.log(err));
     });
 }
 

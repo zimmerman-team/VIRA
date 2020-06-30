@@ -41,6 +41,7 @@ const db = mongoose.connect(
     }
   }
 );
+mongoose.set('useCreateIndex', true);
 
 const invitedEmails = [];
 

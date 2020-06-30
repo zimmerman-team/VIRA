@@ -11,17 +11,16 @@ const client: PostmarkTypes.ServerClient = new postmark.ServerClient(
 );
 
 export function sendMail(
-  name: string,
-  surname: string,
-  email: string,
-  link: string
+  data: any,
+  templateId: number,
+  parentResolve: Function
 ) {
   client
     .sendEmailWithTemplate({
-      TemplateId: 15721543,
+      TemplateId: templateId,
       From: 'insinger@zimmermanzimmerman.nl',
-      To: email,
-      TemplateModel: { app: 'M&E Insinger', name, surname, link },
+      To: data.email,
+      TemplateModel: { app: 'M&E Insinger', ...data },
       Attachments: [
         {
           Content: fs
@@ -36,6 +35,9 @@ export function sendMail(
       ],
     })
     .then((response: any) => {
+      if (parentResolve) {
+        parentResolve(response);
+      }
       return response;
     })
     .catch((error: any) => {
