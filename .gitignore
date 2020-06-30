@@ -66,4 +66,5 @@ build/
 .DS_Store
 ._.*
 
+public/media/*
 .vscode/settings.json
