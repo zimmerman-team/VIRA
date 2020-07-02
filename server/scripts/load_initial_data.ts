@@ -296,9 +296,17 @@ async function checkAndAddProjects(data: any) {
 
 // main function
 function start() {
-  console.log('start load_initial_data.ts script');
+  if (!process.env.REACT_APP_DATA_FILE) {
+    console.log('REACT_APP_DATA_FILE env variable not found');
+    process.exit(0);
+  }
+  console.log(
+    'start load_initial_data.ts script with',
+    process.env.REACT_APP_DATA_FILE,
+    'file'
+  );
   csvtojson()
-    .fromFile(`${__dirname}/test.csv`)
+    .fromFile(`${__dirname}/${process.env.REACT_APP_DATA_FILE}`)
     .then((csvData: any) => {
       // emptyDB()
       //   .then(() => {
