@@ -61,7 +61,8 @@
     "start-test-api": "start-server-and-test start-back-test http://localhost:4200/api test-api",
     "import-data": "ts-node --project 'nodetsconfig.json' server/scripts/load_initial_data.ts",
     "check-invite-new-users": "ts-node --project 'nodetsconfig.json' server/scripts/check_invite_new_users.ts",
-    "check-notify-user-projects": "ts-node --project 'nodetsconfig.json' server/scripts/check_notify_user_projects.ts"
+    "check-notify-user-projects": "ts-node --project 'nodetsconfig.json' server/scripts/check_notify_user_projects.ts",
+    "clear-db": "ts-node --project 'nodetsconfig.json' server/scripts/clear_db.ts"
   },
   "eslintConfig": {
     "settings": {

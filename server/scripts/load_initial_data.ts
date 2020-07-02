@@ -308,8 +308,6 @@ function start() {
   csvtojson()
     .fromFile(`${__dirname}/${process.env.REACT_APP_DATA_FILE}`)
     .then((csvData: any) => {
-      // emptyDB()
-      //   .then(() => {
       checkAndAddOrgTypes(csvData)
         .then(() => {
           checkAndAddOrgs(csvData)
@@ -330,8 +328,6 @@ function start() {
             .catch(err => console.log(err));
         })
         .catch(err => console.log(err));
-      // })
-      // .catch(err => console.log(err));
     });
 }
 

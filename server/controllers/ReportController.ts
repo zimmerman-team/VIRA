@@ -130,7 +130,7 @@ export function getReports(req: any, res: any) {
         }
       );
     } else {
-      Report.find()
+      Report.find({})
         .populate('location')
         .populate('project')
         .populate('target_beneficiaries')

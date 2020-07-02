@@ -416,8 +416,8 @@ export function getGeoMapData(req: any, res: any) {
           const data = filter(rawData, { isDraft: false });
           const mapMarkers = data.map((item: any) => ({
             name: item.place_name || item.country,
-            longitude: item.location.long,
-            latitude: item.location.lat,
+            longitude: get(item, 'location.long', 0),
+            latitude: get(item, 'location.lat', 0),
             value: item.budget,
           }));
           const countryFeatures = {
