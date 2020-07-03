@@ -11,25 +11,22 @@ const client: PostmarkTypes.ServerClient = new postmark.ServerClient(
 );
 
 export function sendMail(
-  name: string,
-  surname: string,
-  email: string,
-  link: string
+  data: any,
+  templateId: number,
+  parentResolve?: Function,
+  parentReject?: Function
 ) {
   client
     .sendEmailWithTemplate({
-      TemplateId: 15721543,
+      TemplateId: templateId,
       From: 'insinger@zimmermanzimmerman.nl',
-      To: email,
-      TemplateModel: { app: 'M&E Insinger', name, surname, link },
+      To: data.email,
+      TemplateModel: { app: 'M&E Insinger', ...data },
       Attachments: [
         {
           Content: fs
             .readFileSync(
-              path.resolve(
-                __dirname,
-                '../../src/app/assets/images/insinger_logo.png'
-              )
+              path.resolve(__dirname, '../assets/images/insinger_logo.png')
             )
             .toString('base64'),
           Name: 'insinger_logo.png',
@@ -39,9 +36,15 @@ export function sendMail(
       ],
     })
     .then((response: any) => {
+      if (parentResolve) {
+        parentResolve(response);
+      }
       return response;
     })
     .catch((error: any) => {
+      if (parentReject) {
+        parentReject(error);
+      }
       return error;
     });
 }
@@ -56,10 +59,7 @@ export function sendForgotPassMail(email: string, link: string) {
       {
         Content: fs
           .readFileSync(
-            path.resolve(
-              __dirname,
-              '../../src/app/assets/images/insinger_logo.png'
-            )
+            path.resolve(__dirname, '../assets/images/insinger_logo.png')
           )
           .toString('base64'),
         Name: 'insinger_logo.png',

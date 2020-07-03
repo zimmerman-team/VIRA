@@ -1,15 +1,18 @@
-const mongoose = require('mongoose');
-const Report = require('../models/report');
-const Project = require('../models/project');
-const Location = require('../models/location');
-const policyPriority = require('../models/policyPriority');
-const targetBeneficiary = require('../models/targetBeneficiary');
-import { countryFeaturesData } from '../config/countryFeatures';
+import get from 'lodash/get';
 import filter from 'lodash/filter';
-import findIndex from 'lodash/findIndex';
+const mongoose = require('mongoose');
 import consts from '../config/consts';
+const Report = require('../models/report');
 import { isArray } from '../utils/general';
+const Funder = require('../models/funder');
+const Project = require('../models/project');
+const Organisation = require('../models/Org');
+const Location = require('../models/location');
 import { sdgMapModel, sdgmap } from '../utils/sdgmap';
+const policyPriority = require('../models/policyPriority');
+import { countryFeaturesData } from '../config/countryFeatures';
+const targetBeneficiary = require('../models/targetBeneficiary');
+const ResponsiblePerson = require('../models/responsiblePerson');
 
 const ppToSdg = consts.ppToSdg;
 
@@ -17,27 +20,139 @@ const ppToSdg = consts.ppToSdg;
 export function getReports(req: any, res: any) {
   const { projectID } = req.query;
 
-  let query = {};
-
   if (projectID) {
+    let query = {};
+
     if (isArray(projectID)) {
       query = { project: { $in: projectID } };
     } else {
       query = { project: projectID };
     }
-  }
 
-  Report.find(query)
-    .populate('location')
-    .populate('project')
-    .populate('target_beneficiaries')
-    .populate('policy_priority')
-    .exec((err: any, reports: any) => {
-      if (err) {
-        res(JSON.stringify({ status: 'error', message: err.message }));
-      }
-      res(JSON.stringify({ status: 'success', data: reports }));
-    });
+    Report.find(query)
+      .populate('location')
+      .populate('project')
+      .populate('target_beneficiaries')
+      .populate('policy_priority')
+      .populate('funder')
+      .exec((err: any, reports: any) => {
+        if (err) {
+          res(JSON.stringify({ status: 'error', message: err.message }));
+        }
+        res(
+          JSON.stringify({
+            status: 'success',
+            data: reports.map((report: any) => ({
+              ...report._doc,
+              unix_date: new Date(report._doc.date).getTime() / 1000,
+            })),
+          })
+        );
+      });
+  } else {
+    if (
+      get(req.query, 'userRole', '').toLowerCase() ===
+      consts.roles.regular.toLowerCase()
+    ) {
+      ResponsiblePerson.findOne(
+        { email: req.query.userEmail },
+        (err: any, person: any) => {
+          Project.find({ person: person }, (err: any, projects: any) => {
+            Report.find({ project: { $in: projects } })
+              .populate('location')
+              .populate('project')
+              .populate('target_beneficiaries')
+              .populate('policy_priority')
+              .populate('funder')
+              .exec((err: any, reports: any) => {
+                if (err) {
+                  res(
+                    JSON.stringify({ status: 'error', message: err.message })
+                  );
+                }
+                res(
+                  JSON.stringify({
+                    status: 'success',
+                    data: reports.map((report: any) => ({
+                      ...report._doc,
+                      unix_date: new Date(report._doc.date).getTime() / 1000,
+                    })),
+                  })
+                );
+              });
+          });
+        }
+      );
+    } else if (
+      get(req.query, 'userRole', '').toLowerCase() ===
+        consts.roles.admin.toLowerCase() ||
+      get(req.query, 'userRole', '').toLowerCase() ===
+        consts.roles.mod.toLowerCase()
+    ) {
+      ResponsiblePerson.find(
+        { email: req.query.userEmail },
+        (err: any, persons: any) => {
+          Organisation.find(
+            { _id: { $in: persons.map((p: any) => p.organisation) } },
+            (err: any, orgs: any) => {
+              Project.find(
+                { organisation: { $in: orgs.map((org: any) => org) } },
+                (err: any, projects: any) => {
+                  Report.find({ project: { $in: projects } })
+                    .populate('location')
+                    .populate('project')
+                    .populate('target_beneficiaries')
+                    .populate('policy_priority')
+                    .populate('funder')
+                    .exec((err: any, reports: any) => {
+                      if (err) {
+                        res(
+                          JSON.stringify({
+                            status: 'error',
+                            message: err.message,
+                          })
+                        );
+                      }
+                      res(
+                        JSON.stringify({
+                          status: 'success',
+                          data: reports.map((report: any) => ({
+                            ...report._doc,
+                            unix_date:
+                              new Date(report._doc.date).getTime() / 1000,
+                          })),
+                        })
+                      );
+                    });
+                }
+              );
+            }
+          );
+        }
+      );
+    } else {
+      Report.find({})
+        .populate('location')
+        .populate('project')
+        .populate('target_beneficiaries')
+        .populate('policy_priority')
+        .populate('funder')
+        .exec((err: any, reports: any) => {
+          if (err) {
+            res(JSON.stringify({ status: 'error', message: err.message }));
+          }
+          res(
+            JSON.stringify({
+              status: 'success',
+              data: reports.map((report: any) => ({
+                ...report._doc,
+                unix_date: new Date(report._doc.date).getTime() / 1000,
+              })),
+            })
+          );
+        });
+    }
+  }
 }
 
 // get report by id
@@ -46,9 +161,16 @@ export function getReport(req: any, res: any) {
 
   Report.findById(id)
     .populate('location')
-    .populate('project')
+    .populate({
+      path: 'project',
+      populate: {
+        path: 'person',
+        model: ResponsiblePerson,
+      },
+    })
     .populate('target_beneficiaries')
     .populate('policy_priority')
+    .populate('funder')
     .exec((err: any, report: any) => {
       if (err) {
         res(JSON.stringify({ status: 'error', message: err.message }));
@@ -126,6 +248,29 @@ async function getPolicyPriority(data: any) {
   });
 }
 
+async function getFunder(data: any) {
+  return new Promise((resolve, reject) => {
+    Funder.findOne({ name: data }).exec((err: any, funder: any) => {
+      if (err || !funder) {
+        if (data === '') {
+          resolve(null);
+        } else {
+          Funder.create({ name: data }, (err2: any, funder2: any) => {
+            if (err2) {
+              console.log('err2', err2);
+              resolve(null);
+            } else {
+              resolve(funder2);
+            }
+          });
+        }
+      } else {
+        resolve(funder);
+      }
+    });
+  });
+}
+
 async function getLocation(data: any) {
   return new Promise((resolve, reject) => {
     if (data) {
@@ -168,39 +313,42 @@ export function addReport(req: any, res: any) {
               res(JSON.stringify({ status: 'error', message: err.message }));
             }
             getLocation(data.location).then((location: any) => {
-              // console.log(pp);
-              let report = new Report();
-              report.project = project;
-              report.title = data.title;
-              report.location = location;
-              report.place_name = data.place_name;
-              report.date = new Date().toLocaleDateString();
-              report.country = data.country;
-              report.target_beneficiaries = tb;
-              report.policy_priority = pp;
-              report.budget = data.budget;
-              report.total_target_beneficiaries =
-                data.total_target_beneficiaries;
-              report.total_target_beneficiaries_commited =
-                data.total_target_beneficiaries_commited;
-              report.budget = data.budget;
-              report.insContribution = data.insContribution;
-              report.key_outcomes = data.key_outcomes;
-              report.monitor_report_outcomes = data.monitor_report_outcomes;
-              report.media = data.media;
-              report.key_implementation_challenges =
-                data.key_implementation_challenges;
-              report.other_project_outcomes = data.other_project_outcomes;
-              report.plans = data.plans;
-              report.other_comments = data.other_comments;
-              report.isDraft = data.isDraft ? data.isDraft : false;
-              report.save((err: any, report: any) => {
-                if (err) {
-                  res(
-                    JSON.stringify({ status: 'error', message: err.message })
-                  );
-                }
-                res(JSON.stringify({ status: 'success', data: report }));
+              getFunder(data.funder).then((funder: any) => {
+                // console.log(pp);
+                let report = new Report();
+                report.project = project;
+                report.title = data.title;
+                report.location = location;
+                report.place_name = data.place_name;
+                report.date = new Date().toLocaleDateString();
+                report.country = data.country;
+                report.target_beneficiaries = tb;
+                report.policy_priority = pp;
+                report.budget = data.budget;
+                report.total_target_beneficiaries =
+                  data.total_target_beneficiaries;
+                report.total_target_beneficiaries_commited =
+                  data.total_target_beneficiaries_commited;
+                report.budget = data.budget;
+                report.insContribution = data.insContribution;
+                report.key_outcomes = data.key_outcomes;
+                report.monitor_report_outcomes = data.monitor_report_outcomes;
+                report.media = data.media;
+                report.key_implementation_challenges =
+                  data.key_implementation_challenges;
+                report.other_project_outcomes = data.other_project_outcomes;
+                report.plans = data.plans;
+                report.other_comments = data.other_comments;
+                report.isDraft = data.isDraft ? data.isDraft : false;
+                report.funder = funder;
+                report.save((err: any, report: any) => {
+                  if (err) {
+                    res(
+                      JSON.stringify({ status: 'error', message: err.message })
+                    );
+                  }
+                  res(JSON.stringify({ status: 'success', data: report }));
+                });
               });
             });
           }
@@ -266,44 +414,48 @@ export function editReport(req: any, res: any) {
                   );
                 }
                 getLocation(data.location).then((location: any) => {
-                  report.title = data.title;
-                  report.location = location;
-                  report.place_name = data.place_name;
-                  report.date = new Date().toLocaleDateString();
-                  report.country = data.country;
-                  report.target_beneficiaries = tb;
-                  report.policy_priority = pp;
-                  report.budget = data.budget;
-                  report.total_target_beneficiaries =
-                    data.total_target_beneficiaries;
-                  report.total_target_beneficiaries_commited =
-                    data.total_target_beneficiaries_commited;
-                  report.budget = data.budget;
-                  report.insContribution = data.insContribution;
-                  report.key_outcomes = data.key_outcomes;
-                  report.monitor_report_outcomes = data.monitor_report_outcomes;
-                  report.media = data.media;
-                  report.key_implementation_challenges =
-                    data.key_implementation_challenges;
-                  report.other_project_outcomes = data.other_project_outcomes;
-                  report.plans = data.plans;
-                  report.other_comments = data.other_comments;
-                  report.isDraft = data.isDraft ? data.isDraft : false;
-                  report.save((err5: any, updatedRep: any) => {
-                    if (err5) {
+                  getFunder(data.funder).then((funder: any) => {
+                    report.title = data.title;
+                    report.location = location;
+                    report.place_name = data.place_name;
+                    report.date = new Date().toLocaleDateString();
+                    report.country = data.country;
+                    report.target_beneficiaries = tb;
+                    report.policy_priority = pp;
+                    report.budget = data.budget;
+                    report.total_target_beneficiaries =
+                      data.total_target_beneficiaries;
+                    report.total_target_beneficiaries_commited =
+                      data.total_target_beneficiaries_commited;
+                    report.budget = data.budget;
+                    report.insContribution = data.insContribution;
+                    report.key_outcomes = data.key_outcomes;
+                    report.monitor_report_outcomes =
+                      data.monitor_report_outcomes;
+                    report.media = data.media;
+                    report.key_implementation_challenges =
+                      data.key_implementation_challenges;
+                    report.other_project_outcomes = data.other_project_outcomes;
+                    report.plans = data.plans;
+                    report.other_comments = data.other_comments;
+                    report.isDraft = data.isDraft ? data.isDraft : false;
+                    report.funder = funder;
+                    report.save((err5: any, updatedRep: any) => {
+                      if (err5) {
+                        res(
+                          JSON.stringify({
+                            status: 'error',
+                            message: err5.message,
+                          })
+                        );
+                      }
                       res(
                         JSON.stringify({
-                          status: 'error',
-                          message: err5.message,
+                          status: 'success',
+                          data: updatedRep,
                         })
                       );
-                    }
-                    res(
-                      JSON.stringify({
-                        status: 'success',
-                        data: updatedRep,
-                      })
-                    );
+                    });
                   });
                 });
               }

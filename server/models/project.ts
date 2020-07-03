@@ -6,6 +6,8 @@ const { Schema } = mongoose;
 const organisation = require('../models/Org');
 // @ts-ignore
 const category = require('../models/project_categroy');
+// @ts-ignore
+const ResponsiblePerson = require('../models/responsiblePerson');
 
 const ProjectSchema = new mongoose.Schema({
   project_number: { type: String, required: true },
@@ -30,6 +32,11 @@ const ProjectSchema = new mongoose.Schema({
     ref: category,
     index: true,
   },
+  person: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: ResponsiblePerson,
+    index: true,
+  },
 });
 
 ProjectSchema.index({ '$**': 'text' });
@@ -42,6 +49,10 @@ module.exports.get = (callback: any, limit: any) => {
     .find(callback)
     .populate({
       path: 'category',
+      select: 'name',
+    })
+    .populate({
+      path: 'person',
       select: 'name',
     })
     .limit(limit);

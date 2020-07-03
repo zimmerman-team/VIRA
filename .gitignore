@@ -66,14 +66,5 @@ build/
 .DS_Store
 ._.*
 
-
-
-.vscode/settings.json
-
-
-media/
-cypress/videos/*
-cypress/screenshots/*
 public/media/*
-
-cypress.env.json
+.vscode/settings.json
