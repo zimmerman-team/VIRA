@@ -1,6 +1,5 @@
 // @ts-ignore
 const mongoose = require('mongoose');
-//const { Schema } = mongoose;
 const Organisation = require('../models/Org');
 const PersonSchema = new mongoose.Schema({
   family_name: { type: String, required: true },

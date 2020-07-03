@@ -61,7 +61,10 @@ export function modifyResponsiblePerson(PerObj: any, newData: any) {
     if (PerObj.role !== newData.role) {
       PerObj.role = newData.role;
     }
-    if (PerObj.organisation !== get(newData.Organisation, '_id', null)) {
+    if (
+      PerObj.organisation !==
+      get(newData.Organisation, '_id', PerObj.organisation)
+    ) {
       PerObj.organisation = newData.Organisation;
     }
     PerObj.save((err: any, doc: any) => {
@@ -110,6 +113,9 @@ export function modifyProject(ProjObj: any, newData: any) {
     }
     if (ProjObj.category !== get(newData.Category, '_id', null)) {
       ProjObj.category = newData.Category;
+    }
+    if (ProjObj.person !== get(newData.Person, '_id', null)) {
+      ProjObj.person = newData.Person;
     }
 
     ProjObj.save((err: any, doc: any) => {

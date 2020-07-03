@@ -1,14 +1,34 @@
-const organisation = require('../models/Org');
+import get from 'lodash/get';
+import consts from '../config/consts';
 const orgType = require('../models/orgType');
+const organisation = require('../models/Org');
+const ResponsiblePerson = require('../models/responsiblePerson');
 
 export function allOrg(req: any, res: any) {
   if (!req.query.id) {
-    organisation.get((err: any, org: any) => {
-      if (err) {
-        res(JSON.stringify({ status: 'error', message: err.message }));
-      }
-      res(JSON.stringify({ data: org }));
-    });
+    if (
+      get(req.query, 'userRole', '').toLowerCase() !==
+      consts.roles.superAdm.toLowerCase()
+    ) {
+      ResponsiblePerson.find(
+        { email: req.query.userEmail },
+        (err: any, persons: any) => {
+          organisation.find(
+            { _id: { $in: persons.map((p: any) => p.organisation) } },
+            (err: any, orgs: any) => {
+              res(JSON.stringify({ data: orgs }));
+            }
+          );
+        }
+      );
+    } else {
+      organisation.get((err: any, org: any) => {
+        if (err) {
+          res(JSON.stringify({ status: 'error', message: err.message }));
+        }
+        res(JSON.stringify({ data: org }));
+      });
+    }
   } else {
     organisation.findById(req.query.id, (err: any, org: any) => {
       organisation.populate(

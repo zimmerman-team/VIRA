@@ -1,11 +1,14 @@
-const express = require('express');
 const http = require('http');
-const socketIO = require('socket.io');
 const cors = require('cors');
 const helmet = require('helmet');
-let apiRouter = require('./api-routes');
-let bodyParser = require('body-parser');
-let mongoose = require('mongoose');
+const cron = require('node-cron');
+const express = require('express');
+const mongoose = require('mongoose');
+const socketIO = require('socket.io');
+const bodyParser = require('body-parser');
+const { exec } = require('child_process');
+const apiRouter = require('./api-routes');
+
 const router = express.Router();
 const VizController = require('./controllers/VizController');
 const orgController = require('./controllers/OrgControllerSocket');
@@ -322,6 +325,7 @@ mongoose.connect(process.env.REACT_APP_MONGO_DB_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+mongoose.set('useCreateIndex', true);
 var db = mongoose.connection;
 if (!db) {
   console.log('Error connecting to database.');
@@ -337,6 +341,25 @@ server.listen(process.env.REACT_APP_BACKEND_PORT, () =>
 
 router.get('/redirectToHome', (req: any, res: any) => {
   res.redirect(`${process.env.REACT_APP_PROJECT_URL}/`);
+});
+
+// daily cron job to check project status and notify user
+cron.schedule('0 0 0 * * *', () => {
+  console.log('running');
+  exec(
+    'yarn check-notify-user-projects',
+    (err: any, stdout: string, stderr: string) => {
+      if (err) {
+        return;
+      }
+      if (stdout !== '') {
+        console.log(`stdout: ${stdout}`);
+      }
+      if (stderr !== '') {
+        console.log(`stderr: ${stderr}`);
+      }
+    }
+  );
 });
 
 app.use('/api', router);

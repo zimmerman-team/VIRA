@@ -4,15 +4,15 @@ const projectController = require('./controllers/ProjectController');
 const orgTypeController = require('./controllers/OrgTypeController');
 const projectCategoryController = require('./controllers/ProjectCategoryController.ts');
 const responsiblePersonController = require('./controllers/ResponsiblePersonController');
-const SearchController = require('./controllers/SearchController');
-const VizController = require('./controllers/VizController');
+// const SearchController = require('./controllers/SearchController');
+// const VizController = require('./controllers/VizController');
 import { uploadFiles } from './utils/upload';
 
 router.get('/', (req: any, res: any) => {
   res.json({ status: 200, message: 'api working' });
 });
 
-router.route('/search').get(SearchController.generalSearchAPI);
+// router.route('/search').get(SearchController.generalSearchAPI);
 
 router
   .route('/organisation')
@@ -71,7 +71,7 @@ router
 
 router.route('/upload').post(uploadFiles);
 
-router.route('/getpp').get(VizController.getPolicyPriorityBarChartAPI);
+// router.route('/getpp').get(VizController.getPolicyPriorityBarChartAPI);
 
 module.exports = router;
 

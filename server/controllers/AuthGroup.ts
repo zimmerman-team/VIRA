@@ -45,17 +45,19 @@ export function getUserGroups(req: any, res: any) {
             }
             return false;
           });
-          // const result = filter(response.data.groups, g => {
-          //   let pass = false;
+          if (user.role !== roles.superAdm) {
+            result = filter(response.data.groups, g => {
+              let pass = false;
 
-          //   for (let b = 0; b < get(user.teams, 'length', 0); b++) {
-          //     if (user.teams[b] === g.name) {
-          //       pass = true;
-          //       break;
-          //     }
-          //   }
-          //   return pass;
-          // });
+              for (let b = 0; b < get(user.groups, 'length', 0); b++) {
+                if (user.groups[b].name === g.name) {
+                  pass = true;
+                  break;
+                }
+              }
+              return pass;
+            });
+          }
           return res(
             JSON.stringify(
               result.map((g: any) => {

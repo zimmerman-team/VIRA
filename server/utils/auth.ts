@@ -22,7 +22,7 @@ export async function getAccessToken(apiType: string) {
   }
 }
 
-export function addUserToGroup(userId: string, groupId: string) {
+export function addUserToGroup(userId: string, groupId: string, resolve?: any) {
   getAccessToken('auth_ext').then((token: string) => {
     axios
       .patch(
@@ -35,15 +35,23 @@ export function addUserToGroup(userId: string, groupId: string) {
         }
       )
       .then((response: any) => {
+        if (resolve) {
+          resolve();
+        }
         return 'success';
       })
       .catch((error: Error) => {
+        console.log('addUserToGroup error', error);
         return 'failure';
       });
   });
 }
 
-export function assignRoleToUser(userId: string, roleId: string) {
+export function assignRoleToUser(
+  userId: string,
+  roleId: string,
+  resolve?: any
+) {
   getAccessToken('auth_ext').then((token: string) => {
     axios
       .patch(
@@ -56,11 +64,13 @@ export function assignRoleToUser(userId: string, roleId: string) {
         }
       )
       .then((response: any) => {
+        if (resolve) {
+          resolve();
+        }
         return 'success';
       })
       .catch((error: Error) => {
-        console.log('error', error);
-
+        console.log('assignRoleToUser error', error);
         return 'failure';
       });
   });
@@ -90,7 +100,8 @@ export function sendWelcomeEmail(
   userId: string,
   name: string,
   surname: string,
-  email: string
+  email: string,
+  resolve?: any
 ) {
   getAccessToken('management')
     .then((token: string) => {
@@ -114,9 +125,16 @@ export function sendWelcomeEmail(
           }
         )
         .then(response => {
-          return sendMail(name, surname, email, response.data.ticket);
+          if (resolve) {
+            resolve();
+          }
+          return sendMail(
+            { name, surname, email, link: response.data.ticket },
+            15721543
+          );
         })
         .catch(error => {
+          console.log('sendWelcomeEmail fail', error.response.data.message);
           return error.response.data.message;
         });
     })
