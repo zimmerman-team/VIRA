@@ -43,7 +43,7 @@ export function getReports(req: any, res: any) {
           status: 'success',
           data: reports.map((report: any) => ({
             ...report._doc,
-            unix_date: new Date(report._doc.date).getTime(),
+            unix_date: new Date(report._doc.date).getTime() / 1000,
           })),
         })
       );
