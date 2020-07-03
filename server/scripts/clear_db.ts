@@ -1,7 +1,7 @@
 // @ts-nocheck
 // base
 require('dotenv').config();
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // models
 const OrgType = require('../models/orgType');
@@ -27,7 +27,7 @@ const db = mongoose.connect(
 mongoose.set('useCreateIndex', true);
 
 // clear database
-async function emptyDB() {
+function emptyDB() {
   return new Promise((resolve, reject) => {
     OrgType.deleteMany({}, (err: any) => {
       if (err) {
@@ -63,8 +63,8 @@ async function emptyDB() {
                   if (err) {
                     console.log(err);
                   }
+                  process.exit(0);
                   console.log('Location removed');
-                  resolve();
                 });
               });
             });
@@ -74,3 +74,5 @@ async function emptyDB() {
     });
   });
 }
+
+emptyDB();
