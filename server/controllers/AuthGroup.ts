@@ -45,7 +45,7 @@ export function getUserGroups(req: any, res: any) {
             }
             return false;
           });
-          if (user.role !== roles.superAdm) {
+          if (get(user, 'role', '') !== roles.superAdm) {
             result = filter(response.data.groups, g => {
               let pass = false;
 
