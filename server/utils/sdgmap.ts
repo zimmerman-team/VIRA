@@ -6,8 +6,8 @@ import findIndex from 'lodash/findIndex';
 
 const policyPriorities = [
   {
-    key: 'poverty',
-    name: 'Poverty reduction with a focus on youth and children',
+    key: 'Poverty reduction with a focus on youth and children',
+    name: 'poverty',
     sdgs: [1, 3, 4, 8, 10],
   },
   {
@@ -21,13 +21,13 @@ const policyPriorities = [
     sdgs: [1, 3, 8, 10],
   },
   {
-    key: 'prisoner',
-    name: 'Prisoner rehabilitation / reintegration',
+    key: 'Prisoner rehabilitation / reintegration',
+    name: 'prisoner',
     sdgs: [1, 3, 4, 5, 8, 10],
   },
   {
-    key: 'drug_use',
-    name: 'Drug use',
+    key: 'Drug use',
+    name: 'drug_use',
     sdgs: [1, 3, 8, 10],
   },
   {
