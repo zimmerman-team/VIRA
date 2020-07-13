@@ -1,5 +1,7 @@
 # INSINGER API
 
+[![CircleCI](https://circleci.com/gh/zimmerman-zimmerman/insinger-backend.svg?style=svg&circle-token=f1c9c39b17f9c53166ffa2440e707cd75aaab5d5)](https://circleci.com/gh/zimmerman-zimmerman/insinger-backend) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=zimmerman-zimmerman_insinger-backend&metric=alert_status&token=99b3db8b4dc828a31bbdb862e3d2f9ce94c9923c)](https://sonarcloud.io/dashboard?id=zimmerman-zimmerman_insinger-backend)
+
 An API/back-end service that processes Insinger data file for a project/report management tool.
 
 ---
