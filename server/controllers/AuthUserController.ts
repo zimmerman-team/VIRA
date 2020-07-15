@@ -19,6 +19,49 @@ import consts from '../config/consts';
 
 const roles = consts.roles;
 
+function filterAllUsersBasedOnPermissions(user: any, users: any, groups: any) {
+  let result = users;
+  if (user.role === roles.admin) {
+    result = filter(result, d => {
+      let pass = false;
+      const dUserGroups = filter(groups, gr =>
+        some(gr.members, member => member === user.authId)
+      );
+      for (let dUserGroup of dUserGroups) {
+        for (let dUserGroupMember of dUserGroup.members) {
+          if (
+            dUserGroupMember === d.user_id &&
+            get(d, 'app_metadata.authorization.roles[0]', '') !== roles.superAdm
+          ) {
+            pass = true;
+            break;
+          }
+          if (pass) {
+            break;
+          }
+        }
+      }
+
+      return pass;
+    });
+    if (result.length === 0) {
+      const currentUserEmail = user.email;
+      const currentUserAuth0 = find(result, {
+        email: currentUserEmail,
+      });
+      result = [currentUserAuth0];
+    }
+  }
+  if (user.role === roles.regular || user.role === roles.mod) {
+    const currentUserEmail = user.email;
+    const currentUserAuth0 = find(result, {
+      email: currentUserEmail,
+    });
+    result = [currentUserAuth0];
+  }
+  return result;
+}
+
 export function getAllUsers(req: any, res: any) {
   const { user } = req.query;
   getAccessToken('management').then(token1 => {
@@ -26,7 +69,7 @@ export function getAllUsers(req: any, res: any) {
       axios
         .all([
           axios.get(
-            `${process.env.REACT_APP_AUTH_DOMAIN}/api/v2/users?include_totals=true&q=identities.connection:"insinger-database-connection"`,
+            `${process.env.REACT_APP_AUTH_DOMAIN}/api/v2/users?include_totals=true&q=identities.connection:"${consts.auth0DBConnection}"`,
             {
               headers: {
                 Authorization: token1,
@@ -40,45 +83,11 @@ export function getAllUsers(req: any, res: any) {
           }),
         ])
         .then(response => {
-          let result = response[0].data.users;
-          const groups = response[1].data.groups;
-          if (user.role === roles.admin) {
-            result = filter(response[0].data.users, d => {
-              let pass = false;
-              const dUserGroups = filter(groups, gr =>
-                some(gr.members, member => member === user.authId)
-              );
-              for (let c1 = 0; c1 < dUserGroups.length; c1++) {
-                for (let c2 = 0; c2 < dUserGroups[c1].members.length; c2++) {
-                  if (
-                    dUserGroups[c1].members[c2] === d.user_id &&
-                    get(d, 'app_metadata.authorization.roles[0]', '') !==
-                      roles.superAdm
-                  ) {
-                    pass = true;
-                    break;
-                  }
-                  if (pass) break;
-                }
-              }
-
-              return pass;
-            });
-            if (result.length === 0) {
-              const currentUserEmail = user.email;
-              const currentUserAuth0 = find(response[0].data.users, {
-                email: currentUserEmail,
-              });
-              result = [currentUserAuth0];
-            }
-          }
-          if (user.role === roles.regular || user.role === roles.mod) {
-            const currentUserEmail = user.email;
-            const currentUserAuth0 = find(response[0].data.users, {
-              email: currentUserEmail,
-            });
-            result = [currentUserAuth0];
-          }
+          const result = filterAllUsersBasedOnPermissions(
+            user,
+            response[0].data.users,
+            response[1].data.groups
+          );
           return res(JSON.stringify(result));
         })
         .catch(error => genericError(error, res));
@@ -115,9 +124,6 @@ export function getUser(req: any, res: any) {
           }),
         ])
         .then(response => {
-          // const userData = response[0].data;
-          // const groups = response[1].data.map((g: any) => g.name);
-          // const role = response[2].data[0].name;
           const data = {
             authId: get(response, '[0].data.user_id', ''),
             email: get(response, '[0].data.email', ''),
@@ -137,7 +143,6 @@ export function getUser(req: any, res: any) {
 
 export function addUser(req: any, res: any) {
   const {
-    adminId,
     email,
     name,
     surname,
@@ -161,7 +166,7 @@ export function addUser(req: any, res: any) {
           family_name: surname,
           name: `${name} ${surname}`,
           nickname: name,
-          connection: 'insinger-database-connection',
+          connection: consts.auth0DBConnection,
           user_metadata: {
             firstName: name,
             lastName: surname,
@@ -193,7 +198,7 @@ export function addUser(req: any, res: any) {
 }
 
 export function deleteUser(req: any, res: any) {
-  const { userId, delId } = req.query;
+  const { delId } = req.query;
   getAccessToken('management').then(token => {
     axios
       .delete(`${process.env.REACT_APP_AUTH_DOMAIN}/api/v2/users/${delId}`, {
@@ -235,7 +240,7 @@ export function editUser(req: any, res: any) {
               groups: [groups],
             },
           },
-          connection: 'insinger-database-connection',
+          connection: consts.auth0DBConnection,
         },
         {
           headers: {
@@ -252,6 +257,8 @@ export function editUser(req: any, res: any) {
               removeRoleFromUser(userId, prevRoleId);
           }
           return res(JSON.stringify({ message: 'success' }));
+        } else {
+          return res(JSON.stringify({ message: 'Something went wrong.' }));
         }
       })
       .catch(error => genericError(error, res));
@@ -269,7 +276,7 @@ export function getAuth0DBConnection(req: any, res: any) {
         })
         .then(response => {
           const connectionID = find(response.data, {
-            name: 'insinger-database-connection',
+            name: consts.auth0DBConnection,
           });
           return res(JSON.stringify(connectionID.id));
         })

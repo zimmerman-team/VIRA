@@ -7,6 +7,10 @@ const Project = require('../models/project');
 const Organisation = require('../models/Org');
 const ProjectCat = require('../models/project_categroy');
 const ResponsiblePerson = require('../models/responsiblePerson');
+import {
+  getProjectsFormattedData,
+  getSingleProjectFormattedData,
+} from '../utils/projectcontroller.utils';
 
 // get all projects
 export function allProject(req: any, res: any) {
@@ -19,28 +23,10 @@ export function allProject(req: any, res: any) {
         { email: req.query.userEmail },
         (err: any, person: any) => {
           Project.find({ person: person }, (err: any, projects: any) => {
-            Project.populate(
-              projects,
-              {
-                path: 'organisation',
-                select: 'organisation_name', //org name and category name
-                match: req.query.organisation_name
-                  ? {
-                      organisation_name: {
-                        $in: req.query.organisation_name.split(','),
-                      },
-                    }
-                  : {},
-              },
-              (err: any, data: any) => {
-                res(
-                  JSON.stringify({
-                    data: data.filter((projects: any) => {
-                      return projects.organisation != null;
-                    }),
-                  })
-                );
-              }
+            res(
+              JSON.stringify(
+                getProjectsFormattedData(projects, req.query.organisation_name)
+              )
             );
           });
         }
@@ -60,28 +46,13 @@ export function allProject(req: any, res: any) {
               Project.find(
                 { organisation: { $in: orgs.map((org: any) => org) } },
                 (err: any, projects: any) => {
-                  Project.populate(
-                    projects,
-                    {
-                      path: 'organisation',
-                      select: 'organisation_name', //org name and category name
-                      match: req.query.organisation_name
-                        ? {
-                            organisation_name: {
-                              $in: req.query.organisation_name.split(','),
-                            },
-                          }
-                        : {},
-                    },
-                    (err: any, data: any) => {
-                      res(
-                        JSON.stringify({
-                          data: data.filter((projects: any) => {
-                            return projects.organisation != null;
-                          }),
-                        })
-                      );
-                    }
+                  res(
+                    JSON.stringify(
+                      getProjectsFormattedData(
+                        projects,
+                        req.query.organisation_name
+                      )
+                    )
                   );
                 }
               );
@@ -90,33 +61,14 @@ export function allProject(req: any, res: any) {
         }
       );
     } else {
-      Project.get((err: any, project: any) => {
+      Project.get((err: any, projects: any) => {
         if (err) {
           res(JSON.stringify({ status: 'error', message: err.message }));
         }
-
-        Project.populate(
-          project,
-          {
-            path: 'organisation',
-            select: 'organisation_name', //org name and category name
-            match: req.query.organisation_name
-              ? {
-                  organisation_name: {
-                    $in: req.query.organisation_name.split(','),
-                  },
-                }
-              : {},
-          },
-          (err: any, data: any) => {
-            res(
-              JSON.stringify({
-                data: data.filter((projects: any) => {
-                  return projects.organisation != null;
-                }),
-              })
-            );
-          }
+        res(
+          JSON.stringify(
+            getProjectsFormattedData(projects, req.query.organisation_name)
+          )
         );
       });
     }
@@ -124,51 +76,10 @@ export function allProject(req: any, res: any) {
     Project.find(
       { project_number: req.query.project_number.split(',') },
       (err: any, projects: any) => {
-        Project.populate(
-          //first populate for organisation.
-          projects,
-          {
-            path: 'organisation ',
-            select: 'organisation_name ', //org name
-            match: req.query.organisation_name
-              ? {
-                  organisation_name: {
-                    $in: req.query.organisation_name.split(','),
-                  },
-                }
-              : {},
-          },
-          (err: any, projects: any) => {
-            //callback from first populate()
-            Project.populate(
-              // second populate for category
-              projects,
-              {
-                path: 'category',
-                select: 'name',
-              },
-              (err: any, projects2: any) => {
-                Project.populate(
-                  // third populate for category
-                  projects2,
-                  {
-                    path: 'person',
-                    select: 'email',
-                  },
-                  (err: any, data: any) => {
-                    //callback from third populate()
-                    res(
-                      JSON.stringify({
-                        data: data.filter((projects: any) => {
-                          return projects.organisation != null;
-                        }),
-                      })
-                    );
-                  }
-                );
-              }
-            );
-          }
+        res(
+          JSON.stringify(
+            getSingleProjectFormattedData(projects, req.query.organisation_name)
+          )
         );
       }
     );
@@ -227,7 +138,7 @@ async function getOrganisation(id: string) {
 export function addProject(req: any, res: any) {
   getProjectCategory(req.query.category).then(category => {
     getOrganisation(req.query.orgId).then(organisation => {
-      let project = new Project();
+      const project = new Project();
       project.project_number = req.query.project_number;
       project.project_name = req.query.project_name;
       project.project_description = req.query.project_description;

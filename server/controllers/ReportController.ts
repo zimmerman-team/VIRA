@@ -13,8 +13,7 @@ const policyPriority = require('../models/policyPriority');
 import { countryFeaturesData } from '../config/countryFeatures';
 const targetBeneficiary = require('../models/targetBeneficiary');
 const ResponsiblePerson = require('../models/responsiblePerson');
-
-const ppToSdg = consts.ppToSdg;
+import { getReportsFormattedData } from '../utils/reportcontroller.utils';
 
 // get all reports or reports of a project
 export function getReports(req: any, res: any) {
@@ -36,18 +35,7 @@ export function getReports(req: any, res: any) {
       .populate('policy_priority')
       .populate('funder')
       .exec((err: any, reports: any) => {
-        if (err) {
-          res(JSON.stringify({ status: 'error', message: err.message }));
-        }
-        res(
-          JSON.stringify({
-            status: 'success',
-            data: reports.map((report: any) => ({
-              ...report._doc,
-              unix_date: new Date(report._doc.date).getTime() / 1000,
-            })),
-          })
-        );
+        res(JSON.stringify(getReportsFormattedData(err, reports)));
       });
   } else {
     if (
@@ -65,20 +53,7 @@ export function getReports(req: any, res: any) {
               .populate('policy_priority')
               .populate('funder')
               .exec((err: any, reports: any) => {
-                if (err) {
-                  res(
-                    JSON.stringify({ status: 'error', message: err.message })
-                  );
-                }
-                res(
-                  JSON.stringify({
-                    status: 'success',
-                    data: reports.map((report: any) => ({
-                      ...report._doc,
-                      unix_date: new Date(report._doc.date).getTime() / 1000,
-                    })),
-                  })
-                );
+                res(JSON.stringify(getReportsFormattedData(err, reports)));
               });
           });
         }
@@ -105,23 +80,8 @@ export function getReports(req: any, res: any) {
                     .populate('policy_priority')
                     .populate('funder')
                     .exec((err: any, reports: any) => {
-                      if (err) {
-                        res(
-                          JSON.stringify({
-                            status: 'error',
-                            message: err.message,
-                          })
-                        );
-                      }
                       res(
-                        JSON.stringify({
-                          status: 'success',
-                          data: reports.map((report: any) => ({
-                            ...report._doc,
-                            unix_date:
-                              new Date(report._doc.date).getTime() / 1000,
-                          })),
-                        })
+                        JSON.stringify(getReportsFormattedData(err, reports))
                       );
                     });
                 }
@@ -138,18 +98,7 @@ export function getReports(req: any, res: any) {
         .populate('policy_priority')
         .populate('funder')
         .exec((err: any, reports: any) => {
-          if (err) {
-            res(JSON.stringify({ status: 'error', message: err.message }));
-          }
-          res(
-            JSON.stringify({
-              status: 'success',
-              data: reports.map((report: any) => ({
-                ...report._doc,
-                unix_date: new Date(report._doc.date).getTime() / 1000,
-              })),
-            })
-          );
+          res(JSON.stringify(getReportsFormattedData(err, reports)));
         });
     }
   }
@@ -314,8 +263,7 @@ export function addReport(req: any, res: any) {
             }
             getLocation(data.location).then((location: any) => {
               getFunder(data.funder).then((funder: any) => {
-                // console.log(pp);
-                let report = new Report();
+                const report = new Report();
                 report.project = project;
                 report.title = data.title;
                 report.location = location;
@@ -373,21 +321,6 @@ async function removeTargetBeneficiaries(data: any) {
   });
 }
 
-// async function removePolicyPriorities(data: any) {
-//   return new Promise((resolve, reject) => {
-//     if (data) {
-//       policyPriority.deleteMany({ _id: data }, (err1: any, result: any) => {
-//         if (err1) {
-//           resolve('failure');
-//         }
-//         resolve('success');
-//       });
-//     } else {
-//       resolve('success');
-//     }
-//   });
-// }
-
 // edit report
 export function editReport(req: any, res: any) {
   const { data } = req.query;
@@ -399,8 +332,6 @@ export function editReport(req: any, res: any) {
     if (report) {
       removeTargetBeneficiaries(report.targetBeneficiaries).then(
         (result: any) => {
-          // removePolicyPriorities(report.policy_priority).then(
-          //   (result1: any) => {
           getPolicyPriority(data.policy_priority).then(pp => {
             targetBeneficiary.create(
               data.target_beneficiaries,
@@ -461,127 +392,8 @@ export function editReport(req: any, res: any) {
               }
             );
           });
-          //   }
-          // );
         }
       );
-    }
-  });
-}
-
-// update report
-export function updateReport(req: any, res: any) {
-  const data = req.query;
-  Report.findById(data._id, (err: any, found_report: any) => {
-    if (err) {
-      res.json(err);
-    } else if (found_report) {
-      targetBeneficiary
-        .find({
-          _id: {
-            $in: data.target_beneficiaries
-              ? data.target_beneficiaries.map((item: any) =>
-                  mongoose.Types.ObjectId(item)
-                )
-              : [],
-          },
-        })
-        .exec((err: any, tb: any) => {
-          if (err) {
-            found_report.title = data.title;
-            found_report.location = location;
-            found_report.date = new Date().toLocaleDateString();
-            found_report.total_target_beneficiaries =
-              data.total_target_beneficiaries;
-            found_report.key_outcomes = data.key_outcomes;
-            found_report.monitor_report_outcomes = data.monitor_report_outcomes;
-            // report.media = data.media; // *** upload file and then store path here ***
-            found_report.key_implementation_challenges =
-              data.key_implementation_challenges;
-            found_report.other_project_outcomes = data.other_project_outcomes;
-            found_report.plans = data.plans;
-            found_report.other_comments = data.other_comments;
-          }
-          policyPriority
-            .find({
-              _id: {
-                $in: data.policy_priority
-                  ? data.policy_priority.map((item: any) =>
-                      mongoose.Types.ObjectId(item)
-                    )
-                  : [],
-              },
-            })
-            .exec((err: any, pp: any) => {
-              if (err) {
-                found_report.title = data.title;
-                found_report.location = location;
-                found_report.date = new Date().toLocaleDateString();
-                found_report.total_target_beneficiaries =
-                  data.total_target_beneficiaries;
-                found_report.key_outcomes = data.key_outcomes;
-                found_report.monitor_report_outcomes =
-                  data.monitor_report_outcomes;
-                // report.media = data.media; // *** upload file and then store path here ***
-                found_report.key_implementation_challenges =
-                  data.key_implementation_challenges;
-                found_report.other_project_outcomes =
-                  data.other_project_outcomes;
-                found_report.plans = data.plans;
-                found_report.other_comments = data.other_comments;
-              }
-              Location.findOne(
-                data.location
-                  ? {
-                      long: data.location.long,
-                      lat: data.location.lat,
-                    }
-                  : {}
-              ).exec((err: any, l: any) => {
-                let location = null;
-                if (err) {
-                  location = new Location({
-                    long: data.location.long,
-                    lat: data.location.lat,
-                  });
-                } else {
-                  location = l;
-                }
-                found_report.title = data.title;
-                found_report.location = location;
-                found_report.date = new Date().toLocaleDateString();
-                found_report.target_beneficiaries = tb;
-                found_report.policy_priority = pp;
-                found_report.total_target_beneficiaries =
-                  data.total_target_beneficiaries;
-                found_report.key_outcomes = data.key_outcomes;
-                found_report.monitor_report_outcomes =
-                  data.monitor_report_outcomes;
-                // report.media = data.media; // *** upload file and then store path here ***
-                found_report.key_implementation_challenges =
-                  data.key_implementation_challenges;
-                found_report.other_project_outcomes =
-                  data.other_project_outcomes;
-                found_report.plans = data.plans;
-                found_report.other_comments = data.other_comments;
-
-                found_report.save((err: any, report: any) => {
-                  if (err) {
-                    res(
-                      JSON.stringify({ status: 'error', message: err.message })
-                    );
-                  }
-
-                  res(JSON.stringify({ status: 'success', data: report }));
-                });
-              });
-            });
-        });
-    } else {
-      res.json({
-        status: 'fail',
-        message: 'project not found.',
-      });
     }
   });
 }
