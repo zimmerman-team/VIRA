@@ -1,5 +1,6 @@
 // @ts-nocheck
 import axios from 'axios';
+import { authGenericError } from './general';
 import { sendMail, sendForgotPassMail } from './email';
 
 export async function getAccessToken(apiType: string) {
@@ -177,14 +178,14 @@ export function sendForgetPasswordEmail(req: any, res: any) {
               );
             })
             .catch(error => {
-              return res(JSON.stringify({ message: 'Something went wrong.' }));
+              return authGenericError(res);
             });
         })
         .catch(error => {
-          return res(JSON.stringify({ message: 'Something went wrong.' }));
+          return authGenericError(res);
         });
     })
     .catch((error: any) => {
-      return res(JSON.stringify({ message: 'Something went wrong.' }));
+      return authGenericError(res);
     });
 }

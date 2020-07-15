@@ -8,7 +8,7 @@ import {
   assignRoleToUser,
   removeRoleFromUser,
 } from '../utils/auth';
-import { makePass, genericError } from '../utils/general';
+import { makePass, genericError, authGenericError } from '../utils/general';
 
 import get from 'lodash/get';
 import some from 'lodash/some';
@@ -27,8 +27,8 @@ function filterAllUsersBasedOnPermissions(user: any, users: any, groups: any) {
       const dUserGroups = filter(groups, gr =>
         some(gr.members, member => member === user.authId)
       );
-      for (let dUserGroup of dUserGroups) {
-        for (let dUserGroupMember of dUserGroup.members) {
+      for (const dUserGroup of dUserGroups) {
+        for (const dUserGroupMember of dUserGroup.members) {
           if (
             dUserGroupMember === d.user_id &&
             get(d, 'app_metadata.authorization.roles[0]', '') !== roles.superAdm
@@ -258,7 +258,7 @@ export function editUser(req: any, res: any) {
           }
           return res(JSON.stringify({ message: 'success' }));
         } else {
-          return res(JSON.stringify({ message: 'Something went wrong.' }));
+          return authGenericError(res);
         }
       })
       .catch(error => genericError(error, res));
@@ -281,10 +281,10 @@ export function getAuth0DBConnection(req: any, res: any) {
           return res(JSON.stringify(connectionID.id));
         })
         .catch(error => {
-          return res(JSON.stringify({ message: 'Something went wrong.' }));
+          return authGenericError(res);
         });
     })
     .catch((error: any) => {
-      return res(JSON.stringify({ message: 'Something went wrong.' }));
+      return authGenericError(res);
     });
 }
