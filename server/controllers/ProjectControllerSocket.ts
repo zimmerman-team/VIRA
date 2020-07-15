@@ -23,11 +23,12 @@ export function allProject(req: any, res: any) {
         { email: req.query.userEmail },
         (err: any, person: any) => {
           Project.find({ person: person }, (err: any, projects: any) => {
-            res(
-              JSON.stringify(
-                getProjectsFormattedData(projects, req.query.organisation_name)
-              )
-            );
+            getProjectsFormattedData(
+              projects,
+              req.query.organisation_name
+            ).then((result: any) => {
+              res(JSON.stringify(result));
+            });
           });
         }
       );
@@ -46,14 +47,12 @@ export function allProject(req: any, res: any) {
               Project.find(
                 { organisation: { $in: orgs.map((org: any) => org) } },
                 (err: any, projects: any) => {
-                  res(
-                    JSON.stringify(
-                      getProjectsFormattedData(
-                        projects,
-                        req.query.organisation_name
-                      )
-                    )
-                  );
+                  getProjectsFormattedData(
+                    projects,
+                    req.query.organisation_name
+                  ).then((result: any) => {
+                    res(JSON.stringify(result));
+                  });
                 }
               );
             }
@@ -65,10 +64,10 @@ export function allProject(req: any, res: any) {
         if (err) {
           res(JSON.stringify({ status: 'error', message: err.message }));
         }
-        res(
-          JSON.stringify(
-            getProjectsFormattedData(projects, req.query.organisation_name)
-          )
+        getProjectsFormattedData(projects, req.query.organisation_name).then(
+          (result: any) => {
+            res(JSON.stringify(result));
+          }
         );
       });
     }
@@ -76,11 +75,12 @@ export function allProject(req: any, res: any) {
     Project.find(
       { project_number: req.query.project_number.split(',') },
       (err: any, projects: any) => {
-        res(
-          JSON.stringify(
-            getSingleProjectFormattedData(projects, req.query.organisation_name)
-          )
-        );
+        getSingleProjectFormattedData(
+          projects,
+          req.query.organisation_name
+        ).then((result: any) => {
+          res(JSON.stringify(result));
+        });
       }
     );
   }
