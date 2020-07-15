@@ -130,7 +130,10 @@ export function sendWelcomeEmail(
           }
           return sendMail(
             { name, surname, email, link: response.data.ticket },
-            15721543
+            parseInt(
+              process.env.REACT_APP_POSTMARK_TEMPLATE_WELCOME as string,
+              10
+            )
           );
         })
         .catch(error => {
