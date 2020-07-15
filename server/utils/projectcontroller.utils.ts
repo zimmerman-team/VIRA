@@ -16,7 +16,7 @@ export function getSingleProjectFormattedData(project: any, org: string) {
             }
           : {},
       },
-      (err: any, projects: any) => {
+      (err1: any, projects: any) => {
         //callback from first populate()
         Project.populate(
           // second populate for category
@@ -25,7 +25,7 @@ export function getSingleProjectFormattedData(project: any, org: string) {
             path: 'category',
             select: 'name',
           },
-          (err: any, projects2: any) => {
+          (err2: any, projects2: any) => {
             Project.populate(
               // third populate for category
               projects2,
@@ -33,11 +33,11 @@ export function getSingleProjectFormattedData(project: any, org: string) {
                 path: 'person',
                 select: 'email',
               },
-              (err: any, data: any) => {
+              (err3: any, data: any) => {
                 //callback from third populate()
                 resolve({
-                  data: data.filter((projects: any) => {
-                    return projects.organisation != null;
+                  data: data.filter((_project: any) => {
+                    return _project.organisation != null;
                   }),
                 });
               }
@@ -64,10 +64,10 @@ export function getProjectsFormattedData(data: any, org: string) {
             }
           : {},
       },
-      (err: any, data: any) => {
+      (err: any, projects: any) => {
         resolve({
-          data: data.filter((projects: any) => {
-            return projects.organisation != null;
+          data: projects.filter((project: any) => {
+            return project.organisation != null;
           }),
         });
       }

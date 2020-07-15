@@ -54,29 +54,29 @@ export function generalSearchSocketAPI(req: any, res: any) {
       ) {
         ResponsiblePerson.find(
           { ...responsiblePersonFilter },
-          (err: any, persons: any) => {
+          (err1: any, persons: any) => {
             Project.find({
               person: { $in: persons },
               $or: projectsFilter,
-            }).exec((err: any, projectsResults: any) => {
-              if (!err) {
+            }).exec((err2: any, projectsResults: any) => {
+              if (!err2) {
                 projects = projectsResults;
               }
               Organisation.find({
                 _id: { $in: persons.map((p: any) => p.organisation) },
                 $or: orgsFilter,
-              }).exec((err: any, orgsResults: any) => {
-                if (!err) {
+              }).exec((err3: any, orgsResults: any) => {
+                if (!err3) {
                   orgs = orgsResults;
                 }
                 Report.find({
                   project: { $in: projectsResults },
                   $or: reportsFilter,
-                }).exec((err: any, reportResults: any) => {
+                }).exec((err4: any, reportResults: any) => {
                   getSearchResults(
                     { projects, orgs, reports, reportResults },
                     res,
-                    err
+                    err4
                   );
                 });
               });
@@ -95,25 +95,25 @@ export function generalSearchSocketAPI(req: any, res: any) {
             Organisation.find({
               _id: { $in: persons.map((p: any) => p.organisation) },
               $or: orgsFilter,
-            }).exec((err: any, orgsResults: any) => {
-              if (!err) {
+            }).exec((err1: any, orgsResults: any) => {
+              if (!err1) {
                 orgs = orgsResults;
               }
               Project.find({
                 organisation: { $in: orgsResults.map((org: any) => org) },
                 $or: projectsFilter,
-              }).exec((err: any, projectsResults: any) => {
-                if (!err) {
+              }).exec((err2: any, projectsResults: any) => {
+                if (!err2) {
                   projects = projectsResults;
                 }
                 Report.find({
                   project: { $in: projectsResults },
                   $or: reportsFilter,
-                }).exec((err: any, reportResults: any) => {
+                }).exec((err3: any, reportResults: any) => {
                   getSearchResults(
                     { projects, orgs, reports, reportResults },
                     res,
-                    err
+                    err3
                   );
                 });
               });
@@ -129,17 +129,17 @@ export function generalSearchSocketAPI(req: any, res: any) {
           }
           Organisation.find({
             $or: orgsFilter,
-          }).exec((err: any, orgsResults: any) => {
-            if (!err) {
+          }).exec((err1: any, orgsResults: any) => {
+            if (!err1) {
               orgs = orgsResults;
             }
             Report.find({
               $or: reportsFilter,
-            }).exec((err: any, reportResults: any) => {
+            }).exec((err3: any, reportResults: any) => {
               getSearchResults(
                 { projects, orgs, reports, reportResults },
                 res,
-                err
+                err3
               );
             });
           });
