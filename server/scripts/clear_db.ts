@@ -34,37 +34,37 @@ function emptyDB() {
         console.log(err);
       }
       console.log('OrgType removed');
-      ProjectCategory.deleteMany({}, (err: any) => {
-        if (err) {
-          console.log(err);
+      ProjectCategory.deleteMany({}, (err1: any) => {
+        if (err1) {
+          console.log(err1);
         }
         console.log('ProjectCategory removed');
-        Organisation.deleteMany({}, (err: any) => {
-          if (err) {
-            console.log(err);
+        Organisation.deleteMany({}, (err2: any) => {
+          if (err2) {
+            console.log(err2);
           }
           console.log('Organisation removed');
-          Project.deleteMany({}, (err: any) => {
-            if (err) {
-              console.log(err);
+          Project.deleteMany({}, (err3: any) => {
+            if (err3) {
+              console.log(err3);
             }
             console.log('Project removed');
-            ResponsiblePerson.deleteMany({}, (err: any) => {
-              if (err) {
-                console.log(err);
+            ResponsiblePerson.deleteMany({}, (err4: any) => {
+              if (err4) {
+                console.log(err4);
               }
               console.log('ResponsiblePerson removed');
-              Report.deleteMany({}, (err: any) => {
-                if (err) {
-                  console.log(err);
+              Report.deleteMany({}, (err5: any) => {
+                if (err5) {
+                  console.log(err5);
                 }
                 console.log('Report removed');
-                Location.deleteMany({}, (err: any) => {
-                  if (err) {
-                    console.log(err);
+                Location.deleteMany({}, (err6: any) => {
+                  if (err6) {
+                    console.log(err6);
                   }
-                  process.exit(0);
                   console.log('Location removed');
+                  process.exit(0);
                 });
               });
             });

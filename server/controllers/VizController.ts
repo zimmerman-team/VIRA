@@ -42,11 +42,11 @@ export function getPolicyPriorityBarChart(req: any, res: any) {
       ResponsiblePerson.findOne(
         { email: req.query.userEmail },
         (err: any, person: any) => {
-          Project.find({ person: person }, (err: any, projects: any) => {
+          Project.find({ person: person }, (err1: any, projects: any) => {
             Report.find({ project: { $in: projects } })
               .select(selectQuery)
               .populate('policy_priority')
-              .exec((err: any, rawData: any) => {
+              .exec((err2: any, rawData: any) => {
                 res(
                   JSON.stringify(
                     getPolicyPriorityBarChartFormattedData(rawData)
@@ -67,14 +67,14 @@ export function getPolicyPriorityBarChart(req: any, res: any) {
         (err: any, persons: any) => {
           Organisation.find(
             { _id: { $in: persons.map((p: any) => p.organisation) } },
-            (err: any, orgs: any) => {
+            (err1: any, orgs: any) => {
               Project.find(
                 { organisation: { $in: orgs.map((org: any) => org) } },
-                (err: any, projects: any) => {
+                (err2: any, projects: any) => {
                   Report.find({ project: { $in: projects } })
                     .select(selectQuery)
                     .populate('policy_priority')
-                    .exec((err: any, rawData: any) => {
+                    .exec((err3: any, rawData: any) => {
                       res(
                         JSON.stringify(
                           getPolicyPriorityBarChartFormattedData(rawData)
@@ -124,11 +124,11 @@ export function getSDGBubbleChart(req: any, res: any) {
       ResponsiblePerson.findOne(
         { email: req.query.userEmail },
         (err: any, person: any) => {
-          Project.find({ person: person }, (err: any, projects: any) => {
+          Project.find({ person: person }, (err1: any, projects: any) => {
             Report.find({ project: { $in: projects } })
               .select(selectQuery)
               .populate('policy_priority')
-              .exec((err: any, rawData: any) => {
+              .exec((err2: any, rawData: any) => {
                 res(JSON.stringify(getSDGBubbleChartFormattedData(rawData)));
               });
           });
@@ -145,14 +145,14 @@ export function getSDGBubbleChart(req: any, res: any) {
         (err: any, persons: any) => {
           Organisation.find(
             { _id: { $in: persons.map((p: any) => p.organisation) } },
-            (err: any, orgs: any) => {
+            (err1: any, orgs: any) => {
               Project.find(
                 { organisation: { $in: orgs.map((org: any) => org) } },
-                (err: any, projects: any) => {
+                (err2: any, projects: any) => {
                   Report.find({ project: { $in: projects } })
                     .select(selectQuery)
                     .populate('policy_priority')
-                    .exec((err: any, rawData: any) => {
+                    .exec((err3: any, rawData: any) => {
                       res(
                         JSON.stringify(getSDGBubbleChartFormattedData(rawData))
                       );
@@ -198,11 +198,11 @@ export function getGeoMapData(req: any, res: any) {
       ResponsiblePerson.findOne(
         { email: req.query.userEmail },
         (err: any, person: any) => {
-          Project.find({ person: person }, (err: any, projects: any) => {
+          Project.find({ person: person }, (err1: any, projects: any) => {
             Report.find({ project: { $in: projects }, location: { $ne: null } })
               .select(mapSelectQuery)
               .populate('location')
-              .exec((err: any, rawData: any) => {
+              .exec((err2: any, rawData: any) => {
                 res(JSON.stringify(getGeoMapFormattedData(rawData)));
               });
           });
@@ -219,17 +219,17 @@ export function getGeoMapData(req: any, res: any) {
         (err: any, persons: any) => {
           Organisation.find(
             { _id: { $in: persons.map((p: any) => p.organisation) } },
-            (err: any, orgs: any) => {
+            (err1: any, orgs: any) => {
               Project.find(
                 { organisation: { $in: orgs.map((org: any) => org) } },
-                (err: any, projects: any) => {
+                (err2: any, projects: any) => {
                   Report.find({
                     project: { $in: projects },
                     location: { $ne: null },
                   })
                     .select(mapSelectQuery)
                     .populate('location')
-                    .exec((err: any, rawData: any) => {
+                    .exec((err3: any, rawData: any) => {
                       res(JSON.stringify(getGeoMapFormattedData(rawData)));
                     });
                 }

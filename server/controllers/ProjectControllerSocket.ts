@@ -22,7 +22,7 @@ export function allProject(req: any, res: any) {
       ResponsiblePerson.findOne(
         { email: req.query.userEmail },
         (err: any, person: any) => {
-          Project.find({ person: person }, (err: any, projects: any) => {
+          Project.find({ person: person }, (err2: any, projects: any) => {
             getProjectsFormattedData(
               projects,
               req.query.organisation_name
@@ -43,10 +43,10 @@ export function allProject(req: any, res: any) {
         (err: any, persons: any) => {
           Organisation.find(
             { _id: { $in: persons.map((p: any) => p.organisation) } },
-            (err: any, orgs: any) => {
+            (err2: any, orgs: any) => {
               Project.find(
                 { organisation: { $in: orgs.map((org: any) => org) } },
-                (err: any, projects: any) => {
+                (err3: any, projects: any) => {
                   getProjectsFormattedData(
                     projects,
                     req.query.organisation_name
@@ -109,7 +109,7 @@ async function getProjectCategory(name: string) {
           new ProjectCat({
             name: name,
             description: name,
-          }).save((err: any, newCategory: any) => {
+          }).save((err2: any, newCategory: any) => {
             resolve(newCategory);
           });
         } else {
@@ -153,14 +153,14 @@ export function addProject(req: any, res: any) {
       project.paid_amount = req.query.paid_amount;
       project.category = category;
       project.organisation = organisation;
-      project.save((err: any, project: any) => {
+      project.save((err: any, sproject: any) => {
         if (err) {
           res(JSON.stringify({ status: 'error', message: err.message }));
         } else {
           res(
             JSON.stringify({
               message: 'new project successfully created.',
-              data: project,
+              data: sproject,
             })
           );
         }
@@ -191,9 +191,9 @@ export function editProject(req: any, res: any) {
           project.paid_amount = req.query.paid_amount;
           project.category = category || project.category;
           project.organisation = organisation || project.organisation;
-          project.save((err: any, updProject: any) => {
-            if (err) {
-              res(JSON.stringify({ status: 'error', message: err.message }));
+          project.save((err2: any, updProject: any) => {
+            if (err2) {
+              res(JSON.stringify({ status: 'error', message: err2.message }));
             } else {
               res(
                 JSON.stringify({
@@ -247,7 +247,7 @@ export function getProjectBudgetData(req: any, res: any) {
         Report.find({ project: project })
           .select('budget')
           .populate('policy_priority')
-          .exec((err: any, reports: any) => {
+          .exec((err2: any, reports: any) => {
             if (reports) {
               const fReports = exludeReportID
                 ? filter(reports, { _id: exludeReportID })

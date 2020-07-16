@@ -23,7 +23,7 @@ export function allProject(req: any, res: any) {
               }
             : {},
         },
-        (err: any, data: any) => {
+        (err2: any, data: any) => {
           res.json({
             data: data.filter((projects: any) => {
               return projects.organisation != null;
@@ -50,20 +50,20 @@ export function allProject(req: any, res: any) {
                 }
               : {},
           },
-          (err: any, projects: any) => {
+          (err2: any, projects2: any) => {
             //callback from first populate()
             Project.populate(
               // second populate for category
-              projects,
+              projects2,
               {
                 path: 'category',
                 select: 'name',
               },
-              (err: any, data: any) => {
+              (err3: any, data: any) => {
                 //callback from second populate()
                 res.json({
-                  data: data.filter((projects: any) => {
-                    return projects.organisation != null;
+                  data: data.filter((project: any) => {
+                    return project.organisation != null;
                   }),
                 });
               }

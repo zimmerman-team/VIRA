@@ -45,15 +45,15 @@ export function getReports(req: any, res: any) {
       ResponsiblePerson.findOne(
         { email: req.query.userEmail },
         (err: any, person: any) => {
-          Project.find({ person: person }, (err: any, projects: any) => {
+          Project.find({ person: person }, (err2: any, projects: any) => {
             Report.find({ project: { $in: projects } })
               .populate('location')
               .populate('project')
               .populate('target_beneficiaries')
               .populate('policy_priority')
               .populate('funder')
-              .exec((err: any, reports: any) => {
-                res(JSON.stringify(getReportsFormattedData(err, reports)));
+              .exec((err3: any, reports: any) => {
+                res(JSON.stringify(getReportsFormattedData(err3, reports)));
               });
           });
         }
@@ -69,19 +69,19 @@ export function getReports(req: any, res: any) {
         (err: any, persons: any) => {
           Organisation.find(
             { _id: { $in: persons.map((p: any) => p.organisation) } },
-            (err: any, orgs: any) => {
+            (err2: any, orgs: any) => {
               Project.find(
                 { organisation: { $in: orgs.map((org: any) => org) } },
-                (err: any, projects: any) => {
+                (err3: any, projects: any) => {
                   Report.find({ project: { $in: projects } })
                     .populate('location')
                     .populate('project')
                     .populate('target_beneficiaries')
                     .populate('policy_priority')
                     .populate('funder')
-                    .exec((err: any, reports: any) => {
+                    .exec((err4: any, reports: any) => {
                       res(
-                        JSON.stringify(getReportsFormattedData(err, reports))
+                        JSON.stringify(getReportsFormattedData(err4, reports))
                       );
                     });
                 }
@@ -231,7 +231,7 @@ async function getLocation(data: any) {
           new Location({
             long: data.long,
             lat: data.lat,
-          }).save((err: any, newLocation: any) => {
+          }).save((err2: any, newLocation: any) => {
             resolve(newLocation);
           });
         } else {
@@ -257,9 +257,9 @@ export function addReport(req: any, res: any) {
         }
         targetBeneficiary.create(
           data.target_beneficiaries,
-          (err: any, tb: any) => {
-            if (err) {
-              res(JSON.stringify({ status: 'error', message: err.message }));
+          (err2: any, tb: any) => {
+            if (err2) {
+              res(JSON.stringify({ status: 'error', message: err2.message }));
             }
             getLocation(data.location).then((location: any) => {
               getFunder(data.funder).then((funder: any) => {
@@ -289,13 +289,13 @@ export function addReport(req: any, res: any) {
                 report.other_comments = data.other_comments;
                 report.isDraft = data.isDraft ? data.isDraft : false;
                 report.funder = funder;
-                report.save((err: any, report: any) => {
-                  if (err) {
+                report.save((err3: any, sreport: any) => {
+                  if (err3) {
                     res(
-                      JSON.stringify({ status: 'error', message: err.message })
+                      JSON.stringify({ status: 'error', message: err3.message })
                     );
                   }
-                  res(JSON.stringify({ status: 'success', data: report }));
+                  res(JSON.stringify({ status: 'success', data: sreport }));
                 });
               });
             });

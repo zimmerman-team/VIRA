@@ -28,7 +28,7 @@ export function addLocation(req: any, res: any) {
 
   location.lat = req.query.lat;
   location.long = req.query.long;
-  location.save((err: any, location: any) => {
+  location.save((err: any, loc: any) => {
     if (err) {
       res(JSON.stringify({ status: 'error', message: err.message }));
     }
@@ -36,7 +36,7 @@ export function addLocation(req: any, res: any) {
     res(
       JSON.stringify({
         message: 'new location created.',
-        data: location,
+        data: loc,
       })
     );
   });
@@ -51,9 +51,9 @@ export function updateLocation(req: any, res: any) {
     } else if (found_location) {
       found_location.lat = req.query.lat;
       found_location.long = req.query.long;
-      found_location.save((err: any) => {
-        if (err) {
-          res(JSON.stringify({ status: 'error', message: err.message }));
+      found_location.save((err2: any) => {
+        if (err2) {
+          res(JSON.stringify({ status: 'error', message: err2.message }));
         }
 
         res(JSON.stringify({ status: 'success', data: location }));
