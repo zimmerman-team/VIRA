@@ -3,6 +3,10 @@ export function genericError(error: any, res: any) {
   return res(JSON.stringify(_error));
 }
 
+export function authGenericError(res: any) {
+  return res(JSON.stringify({ message: 'Something went wrong.' }));
+}
+
 export function makePass(length: number): string {
   let result = '';
   const characters =

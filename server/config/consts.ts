@@ -56,4 +56,5 @@ export default {
       number: 3,
     },
   },
+  auth0DBConnection: 'insinger-database-connection',
 };
