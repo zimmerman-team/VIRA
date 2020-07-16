@@ -18,7 +18,7 @@ const ppToSdg = consts.ppToSdg;
 
 // get all reports or reports of a project
 export function getReports(req: any, res: any) {
-  const { projectID } = req.query;
+  const { projectID, startDate, endDate } = req.query;
 
   if (projectID) {
     let query = {};
@@ -131,7 +131,8 @@ export function getReports(req: any, res: any) {
         }
       );
     } else {
-      Report.find({})
+      console.log('We hit this one');
+      Report.find({ date_new: { $gte: startDate, $lt: endDate } })
         .populate('location')
         .populate('project')
         .populate('target_beneficiaries')

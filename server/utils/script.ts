@@ -90,6 +90,7 @@ export function modifyProject(ProjObj: any, newData: any) {
     if (ProjObj.end_date !== newData.end_date) {
       ProjObj.end_date = newData.end_date;
     }
+    //TODO: start-end
     if (ProjObj.total_amount !== newData.total_amount) {
       ProjObj.total_amount = newData.total_amount;
     }

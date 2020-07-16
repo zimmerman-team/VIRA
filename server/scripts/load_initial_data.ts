@@ -256,6 +256,7 @@ async function checkAndAddProjects(data: any) {
                       duration: project.duration,
                       start_date: project.start_date,
                       end_date: project.end_date,
+                      //TODO; add new dates
                       total_amount: project.total_amount,
                       decision_date: project.decision_date,
                       decision: project.decision,
@@ -272,6 +273,8 @@ async function checkAndAddProjects(data: any) {
                       }
                     });
                   } else {
+                    //TODO: somet
+                    //TODO: when done, dont clear db, just import
                     modifyProject(fProject, {
                       ...project,
                       Organisation: organisation,
