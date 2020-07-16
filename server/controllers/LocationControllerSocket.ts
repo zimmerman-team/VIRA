@@ -24,7 +24,7 @@ export function oneLocation(req: any, res: any) {
 // add one org
 
 export function addLocation(req: any, res: any) {
-  let location = new Location();
+  const location = new Location();
 
   location.lat = req.query.lat;
   location.long = req.query.long;
@@ -82,7 +82,7 @@ export function delLocation(req: any, res: any) {
       } else {
         res(
           JSON.stringify({
-            status: location.deletedCount + 'location successfully deleted',
+            status: `${location.deletedCount} location successfully deleted`,
             message: location,
           })
         );

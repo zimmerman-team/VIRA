@@ -20,7 +20,6 @@ export function getUserRole(req: any, res: any) {
 }
 
 export function getUserRoles(req: any, res: any) {
-  const { userId } = req.query;
   getAccessToken('auth_ext').then(token => {
     axios
       .get(`${process.env.REACT_APP_AE_API_URL}/roles`, {

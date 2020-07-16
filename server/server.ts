@@ -294,9 +294,6 @@ IO.sockets.on('connection', (socket: any) => {
   socket.on('editReport', (data: any, fn: any) => {
     reportController.editReport({ query: data }, (res: any) => fn(res));
   });
-  socket.on('updateReport', (data: any, fn: any) => {
-    reportController.updateReport({ query: data }, (res: any) => fn(res));
-  });
   socket.on('oneReport', (data: any, fn: any) => {
     reportController.getReport({ query: data }, (res: any) => fn(res));
   });
