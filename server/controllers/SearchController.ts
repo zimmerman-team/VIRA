@@ -135,11 +135,11 @@ export function generalSearchSocketAPI(req: any, res: any) {
             }
             Report.find({
               $or: reportsFilter,
-            }).exec((err3: any, reportResults: any) => {
+            }).exec((err2: any, reportResults: any) => {
               getSearchResults(
                 { projects, orgs, reports, reportResults },
                 res,
-                err3
+                err2
               );
             });
           });

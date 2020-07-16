@@ -1,7 +1,14 @@
 // @ts-nocheck
 import axios from 'axios';
+import get from 'lodash/get';
+import some from 'lodash/some';
+import filter from 'lodash/filter';
 import { authGenericError } from './general';
 import { sendMail, sendForgotPassMail } from './email';
+
+import consts from '../config/consts';
+
+const roles = consts.roles;
 
 export async function getAccessToken(apiType: string) {
   try {
@@ -191,4 +198,28 @@ export function sendForgetPasswordEmail(req: any, res: any) {
     .catch((error: any) => {
       return authGenericError(res);
     });
+}
+
+export function getUsersForAdmin(users: any, groups: any, user: any) {
+  return filter(users, d => {
+    let pass = false;
+    const dUserGroups = filter(groups, gr =>
+      some(gr.members, member => member === user.authId)
+    );
+    for (const dUserGroup of dUserGroups) {
+      for (const dUserGroupMember of dUserGroup.members) {
+        if (
+          dUserGroupMember === d.user_id &&
+          get(d, 'app_metadata.authorization.roles[0]', '') !== roles.superAdm
+        ) {
+          pass = true;
+          break;
+        }
+        if (pass) {
+          break;
+        }
+      }
+    }
+    return pass;
+  });
 }
