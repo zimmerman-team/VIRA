@@ -19,6 +19,12 @@ import { getReportsFormattedData } from '../utils/reportcontroller.utils';
 export function getReports(req: any, res: any) {
   const { projectID, startDate, endDate } = req.query;
 
+  let query;
+
+  if (startDate && endDate) {
+    query = { date_new: { $gte: startDate, $lt: endDate } };
+  }
+
   if (projectID) {
     let query = {};
 
@@ -91,8 +97,11 @@ export function getReports(req: any, res: any) {
         }
       );
     } else {
-      console.log('We hit this one');
-      Report.find({ date_new: { $gte: startDate, $lt: endDate } })
+      console.log('startDate', startDate);
+      console.log('endDate', endDate);
+      console.log('=====================================================');
+      Report.find(query)
+        // Report.find({})
         .populate('location')
         .populate('project')
         .populate('target_beneficiaries')
