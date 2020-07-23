@@ -22,7 +22,7 @@ export function getReports(req: any, res: any) {
   let query;
 
   if (startDate && endDate) {
-    query = { decision_date_unix: { $gte: startDate, $lt: endDate } };
+    query = { date_new: { $gte: startDate, $lt: endDate } };
   }
 
   if (projectID) {

@@ -1,6 +1,4 @@
 import get from 'lodash/get';
-import moment = require('moment');
-import { getDate } from 'server/scripts/load_initial_data';
 
 export function modifyOrganisation(OrgObj: any, newData: any) {
   return new Promise((resolve, reject) => {
@@ -101,7 +99,15 @@ export function modifyProject(ProjObj: any, newData: any) {
     }
 
     if (ProjObj.decision_date_unix !== newData.decision_date) {
-      ProjObj.decision_date_unix = getDate(newData.decision_date);
+      const dateParts = newData.decision_date.split('-');
+      // month is 0-based, that's why we need dataParts[1] - 1
+      // 19-3-2018 => DD-MM-YYYY
+      ProjObj.decision_date_unix = new Date(
+        +dateParts[2],
+        dateParts[1] - 1,
+        +dateParts[0],
+        12
+      );
     }
 
     if (ProjObj.decision !== newData.decision) {

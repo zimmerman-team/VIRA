@@ -61,19 +61,20 @@ export function allProject(req: any, res: any) {
         }
       );
     } else {
-      Project.find(
-        { decision_date_unix: { $gte: startDate, $lt: endDate } },
-        (err: any, projects: any) => {
-          if (err) {
-            res(JSON.stringify({ status: 'error', message: err.message }));
-          }
-          getProjectsFormattedData(projects, req.query.organisation_name).then(
-            (result: any) => {
-              res(JSON.stringify(result));
-            }
-          );
+      let dateQuery;
+      if (startDate && endDate) {
+        dateQuery = { decision_date_unix: { $gte: startDate, $lt: endDate } };
+      }
+      Project.find(dateQuery, (err: any, projects: any) => {
+        if (err) {
+          res(JSON.stringify({ status: 'error', message: err.message }));
         }
-      );
+        getProjectsFormattedData(projects, req.query.organisation_name).then(
+          (result: any) => {
+            res(JSON.stringify(result));
+          }
+        );
+      });
     }
   } else {
     Project.find(
