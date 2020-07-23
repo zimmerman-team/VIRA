@@ -14,6 +14,7 @@ import {
 
 // get all projects
 export function allProject(req: any, res: any) {
+  const { startDate, endDate } = req.query;
   if (!req.query.project_number) {
     if (
       get(req.query, 'userRole', '').toLowerCase() ===
@@ -60,16 +61,19 @@ export function allProject(req: any, res: any) {
         }
       );
     } else {
-      Project.get((err: any, projects: any) => {
-        if (err) {
-          res(JSON.stringify({ status: 'error', message: err.message }));
-        }
-        getProjectsFormattedData(projects, req.query.organisation_name).then(
-          (result: any) => {
-            res(JSON.stringify(result));
+      Project.find(
+        { decision_date_unix: { $gte: startDate, $lt: endDate } },
+        (err: any, projects: any) => {
+          if (err) {
+            res(JSON.stringify({ status: 'error', message: err.message }));
           }
-        );
-      });
+          getProjectsFormattedData(projects, req.query.organisation_name).then(
+            (result: any) => {
+              res(JSON.stringify(result));
+            }
+          );
+        }
+      );
     }
   } else {
     Project.find(

@@ -1,4 +1,6 @@
 import get from 'lodash/get';
+import moment = require('moment');
+import { getDate } from 'server/scripts/load_initial_data';
 
 export function modifyOrganisation(OrgObj: any, newData: any) {
   return new Promise((resolve, reject) => {
@@ -97,6 +99,11 @@ export function modifyProject(ProjObj: any, newData: any) {
     if (ProjObj.decision_date !== newData.decision_date) {
       ProjObj.decision_date = newData.decision_date;
     }
+
+    if (ProjObj.decision_date_unix !== newData.decision_date) {
+      ProjObj.decision_date_unix = getDate(newData.decision_date);
+    }
+
     if (ProjObj.decision !== newData.decision) {
       ProjObj.decision = newData.decision;
     }

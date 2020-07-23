@@ -22,7 +22,7 @@ export function getReports(req: any, res: any) {
   let query;
 
   if (startDate && endDate) {
-    query = { date_new: { $gte: startDate, $lt: endDate } };
+    query = { decision_date_unix: { $gte: startDate, $lt: endDate } };
   }
 
   if (projectID) {
@@ -97,11 +97,7 @@ export function getReports(req: any, res: any) {
         }
       );
     } else {
-      console.log('startDate', startDate);
-      console.log('endDate', endDate);
-      console.log('=====================================================');
       Report.find(query)
-        // Report.find({})
         .populate('location')
         .populate('project')
         .populate('target_beneficiaries')

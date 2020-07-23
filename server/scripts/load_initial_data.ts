@@ -256,9 +256,9 @@ async function checkAndAddProjects(data: any) {
                       duration: project.duration,
                       start_date: project.start_date,
                       end_date: project.end_date,
-                      //TODO; add new dates
                       total_amount: project.total_amount,
                       decision_date: project.decision_date,
+                      decision_date_unix: getDate(project.decision_date),
                       decision: project.decision,
                       allocated_amount: project.allocated_amount,
                       released_amount: project.released_amount,
@@ -273,8 +273,6 @@ async function checkAndAddProjects(data: any) {
                       }
                     });
                   } else {
-                    //TODO: somet
-                    //TODO: when done, dont clear db, just import
                     modifyProject(fProject, {
                       ...project,
                       Organisation: organisation,
@@ -295,6 +293,14 @@ async function checkAndAddProjects(data: any) {
       );
     });
   });
+}
+
+export function getDate(date: string) {
+  // https://stackoverflow.com/questions/33299687/how-to-convert-dd-mm-yyyy-string-into-javascript-date-object/33299764
+  const dateParts = date.split('-');
+  // month is 0-based, that's why we need dataParts[1] - 1
+  // 19-3-2018 => DD-MM-YYYY
+  return new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0], 12);
 }
 
 // main function
