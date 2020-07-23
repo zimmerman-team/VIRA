@@ -45,17 +45,24 @@ export function allProject(req: any, res: any) {
           Organisation.find(
             { _id: { $in: persons.map((p: any) => p.organisation) } },
             (err: any, orgs: any) => {
-              Project.find(
-                { organisation: { $in: orgs.map((org: any) => org) } },
-                (err: any, projects: any) => {
-                  getProjectsFormattedData(
-                    projects,
-                    req.query.organisation_name
-                  ).then((result: any) => {
-                    res(JSON.stringify(result));
-                  });
-                }
-              );
+              let query;
+              if (startDate && endDate) {
+                query = {
+                  decision_date_unix: { $gte: startDate, $lt: endDate },
+                  organisation: { $in: orgs.map((org: any) => org) },
+                };
+              } else {
+                query = { organisation: { $in: orgs.map((org: any) => org) } };
+              }
+
+              Project.find({ query }, (err: any, projects: any) => {
+                getProjectsFormattedData(
+                  projects,
+                  req.query.organisation_name
+                ).then((result: any) => {
+                  res(JSON.stringify(result));
+                });
+              });
             }
           );
         }
@@ -65,6 +72,7 @@ export function allProject(req: any, res: any) {
       if (startDate && endDate) {
         dateQuery = { decision_date_unix: { $gte: startDate, $lt: endDate } };
       }
+
       Project.find(dateQuery, (err: any, projects: any) => {
         if (err) {
           res(JSON.stringify({ status: 'error', message: err.message }));

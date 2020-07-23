@@ -27,7 +27,6 @@ export function getPolicyPriorityBarChart(req: any, res: any) {
     } else {
       query = { project: projectID };
     }
-
     Report.find(query)
       .select(selectQuery)
       .populate('policy_priority')
@@ -88,7 +87,13 @@ export function getPolicyPriorityBarChart(req: any, res: any) {
         }
       );
     } else {
-      Report.find()
+      const { startDate, endDate } = req.query;
+      let query;
+
+      if (startDate && endDate) {
+        query = { date_new: { $gte: startDate, $lt: endDate } };
+      }
+      Report.find(query)
         .select(selectQuery)
         .populate('policy_priority')
         .exec((err: any, rawData: any) => {
@@ -164,7 +169,13 @@ export function getSDGBubbleChart(req: any, res: any) {
         }
       );
     } else {
-      Report.find()
+      const { startDate, endDate } = req.query;
+      let query;
+
+      if (startDate && endDate) {
+        query = { date_new: { $gte: startDate, $lt: endDate } };
+      }
+      Report.find(query)
         .select(selectQuery)
         .populate('policy_priority')
         .exec((err: any, rawData: any) => {
@@ -239,7 +250,13 @@ export function getGeoMapData(req: any, res: any) {
         }
       );
     } else {
-      Report.find()
+      const { startDate, endDate } = req.query;
+      let query;
+
+      if (startDate && endDate) {
+        query = { date_new: { $gte: startDate, $lt: endDate } };
+      }
+      Report.find(query)
         .select(mapSelectQuery)
         .populate('location')
         .exec((err: any, rawData: any) => {
