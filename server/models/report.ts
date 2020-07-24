@@ -18,9 +18,18 @@ const { Schema } = mongoose;
 var connection = mongoose.createConnection(process.env.REACT_APP_MONGO_DB_URL);
 autoIncrement.initialize(connection);
 
+function parseToString(date_new: Date) {
+  if (date_new) {
+    return date_new.toISOString().substring(0, 10);
+  } else {
+    return 'No new date';
+  }
+}
+
 const ReportSchema = new Schema({
   title: { type: String, required: true },
   date: { type: String, required: true },
+  date_new: { type: Date, default: Date.now, get: parseToString },
   location: {
     type: Schema.Types.ObjectId,
     ref: location,

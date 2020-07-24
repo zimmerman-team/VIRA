@@ -18,6 +18,7 @@ const ProjectSchema = new mongoose.Schema({
   end_date: { type: String, required: false },
   total_amount: { type: Number, required: false },
   decision_date: { type: String, required: false },
+  decision_date_unix: { type: Date, required: false },
   decision: { type: String, required: false },
   allocated_amount: { type: Number, required: false },
   released_amount: { type: Number, required: false },

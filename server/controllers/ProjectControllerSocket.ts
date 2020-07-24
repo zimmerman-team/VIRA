@@ -14,6 +14,7 @@ import {
 
 // get all projects
 export function allProject(req: any, res: any) {
+  const { startDate, endDate } = req.query;
   if (!req.query.project_number) {
     if (
       get(req.query, 'userRole', '').toLowerCase() ===
@@ -44,23 +45,35 @@ export function allProject(req: any, res: any) {
           Organisation.find(
             { _id: { $in: persons.map((p: any) => p.organisation) } },
             (err: any, orgs: any) => {
-              Project.find(
-                { organisation: { $in: orgs.map((org: any) => org) } },
-                (err: any, projects: any) => {
-                  getProjectsFormattedData(
-                    projects,
-                    req.query.organisation_name
-                  ).then((result: any) => {
-                    res(JSON.stringify(result));
-                  });
-                }
-              );
+              let query;
+              if (startDate && endDate) {
+                query = {
+                  decision_date_unix: { $gte: startDate, $lt: endDate },
+                  organisation: { $in: orgs.map((org: any) => org) },
+                };
+              } else {
+                query = { organisation: { $in: orgs.map((org: any) => org) } };
+              }
+
+              Project.find({ query }, (err: any, projects: any) => {
+                getProjectsFormattedData(
+                  projects,
+                  req.query.organisation_name
+                ).then((result: any) => {
+                  res(JSON.stringify(result));
+                });
+              });
             }
           );
         }
       );
     } else {
-      Project.get((err: any, projects: any) => {
+      let dateQuery;
+      if (startDate && endDate) {
+        dateQuery = { decision_date_unix: { $gte: startDate, $lt: endDate } };
+      }
+
+      Project.find(dateQuery, (err: any, projects: any) => {
         if (err) {
           res(JSON.stringify({ status: 'error', message: err.message }));
         }

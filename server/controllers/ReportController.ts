@@ -17,7 +17,13 @@ import { getReportsFormattedData } from '../utils/reportcontroller.utils';
 
 // get all reports or reports of a project
 export function getReports(req: any, res: any) {
-  const { projectID } = req.query;
+  const { projectID, startDate, endDate } = req.query;
+
+  let query;
+
+  if (startDate && endDate) {
+    query = { date_new: { $gte: startDate, $lt: endDate } };
+  }
 
   if (projectID) {
     let query = {};
@@ -91,7 +97,7 @@ export function getReports(req: any, res: any) {
         }
       );
     } else {
-      Report.find({})
+      Report.find(query)
         .populate('location')
         .populate('project')
         .populate('target_beneficiaries')
