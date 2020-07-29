@@ -1,7 +1,20 @@
 const Project = require('../models/project');
 
 export function allProject(req: any, res: any) {
+  const { project_number, startDate, endDate } = req.query;
+
+  let query;
+
+  if (startDate && endDate) {
+    query = { date_new: { $gte: startDate, $lt: endDate } };
+  }
+
+  if (project_number) {
+    query = req.query.project_number.split(',');
+  }
+
   if (!req.query.hasOwnProperty('project_number')) {
+    console.log('We hit if');
     Project.get((err: any, project: any) => {
       if (err) {
         res.json({
@@ -33,45 +46,43 @@ export function allProject(req: any, res: any) {
       );
     });
   } else {
-    Project.find(
-      { project_number: req.query.project_number.split(',') },
-      (err: any, projects: any) => {
-        Project.populate(
-          //first populate for organisation.
-          projects,
-          {
-            path: 'organisation ',
-            select: 'organisation_name ', //org name
-            match: req.query.hasOwnProperty('organisation_name')
-              ? {
-                  organisation_name: {
-                    $in: req.query.organisation_name.split(','),
-                  },
-                }
-              : {},
-          },
-          (err2: any, projects2: any) => {
-            //callback from first populate()
-            Project.populate(
-              // second populate for category
-              projects2,
-              {
-                path: 'category',
-                select: 'name',
-              },
-              (err3: any, data: any) => {
-                //callback from second populate()
-                res.json({
-                  data: data.filter((project: any) => {
-                    return project.organisation != null;
-                  }),
-                });
+    console.log('We hit else');
+    Project.find({ query }, (err: any, projects: any) => {
+      Project.populate(
+        //first populate for organisation.
+        projects,
+        {
+          path: 'organisation ',
+          select: 'organisation_name ', //org name
+          match: req.query.hasOwnProperty('organisation_name')
+            ? {
+                organisation_name: {
+                  $in: req.query.organisation_name.split(','),
+                },
               }
-            );
-          }
-        );
-      }
-    );
+            : {},
+        },
+        (err: any, projects: any) => {
+          //callback from first populate()
+          Project.populate(
+            // second populate for category
+            projects,
+            {
+              path: 'category',
+              select: 'name',
+            },
+            (err: any, data: any) => {
+              //callback from second populate()
+              res.json({
+                data: data.filter((projects: any) => {
+                  return projects.organisation != null;
+                }),
+              });
+            }
+          );
+        }
+      );
+    });
   }
 }
 

@@ -90,12 +90,26 @@ export function modifyProject(ProjObj: any, newData: any) {
     if (ProjObj.end_date !== newData.end_date) {
       ProjObj.end_date = newData.end_date;
     }
+    //TODO: start-end
     if (ProjObj.total_amount !== newData.total_amount) {
       ProjObj.total_amount = newData.total_amount;
     }
     if (ProjObj.decision_date !== newData.decision_date) {
       ProjObj.decision_date = newData.decision_date;
     }
+
+    if (ProjObj.decision_date_unix !== newData.decision_date) {
+      const dateParts = newData.decision_date.split('-');
+      // month is 0-based, that's why we need dataParts[1] - 1
+      // 19-3-2018 => DD-MM-YYYY
+      ProjObj.decision_date_unix = new Date(
+        +dateParts[2],
+        dateParts[1] - 1,
+        +dateParts[0],
+        12
+      );
+    }
+
     if (ProjObj.decision !== newData.decision) {
       ProjObj.decision = newData.decision;
     }

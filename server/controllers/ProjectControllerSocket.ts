@@ -14,6 +14,8 @@ import {
 
 // get all projects
 export function allProject(req: any, res: any) {
+  const { startDate, endDate } = req.query;
+  let query = {};
   if (!req.query.project_number) {
     if (
       get(req.query, 'userRole', '').toLowerCase() ===
@@ -22,7 +24,15 @@ export function allProject(req: any, res: any) {
       ResponsiblePerson.findOne(
         { email: req.query.userEmail },
         (err: any, person: any) => {
-          Project.find({ person: person }, (err2: any, projects: any) => {
+          if (startDate && endDate) {
+            query = {
+              decision_date_unix: { $gte: startDate, $lt: endDate },
+              person: person,
+            };
+          } else {
+            query = { person: person };
+          }
+          Project.find(query, (err2: any, projects: any) => {
             getProjectsFormattedData(
               projects,
               req.query.organisation_name
@@ -44,23 +54,31 @@ export function allProject(req: any, res: any) {
           Organisation.find(
             { _id: { $in: persons.map((p: any) => p.organisation) } },
             (err2: any, orgs: any) => {
-              Project.find(
-                { organisation: { $in: orgs.map((org: any) => org) } },
-                (err3: any, projects: any) => {
-                  getProjectsFormattedData(
-                    projects,
-                    req.query.organisation_name
-                  ).then((result: any) => {
-                    res(JSON.stringify(result));
-                  });
-                }
-              );
+              if (startDate && endDate) {
+                query = {
+                  decision_date_unix: { $gte: startDate, $lt: endDate },
+                  organisation: { $in: orgs.map((org: any) => org) },
+                };
+              } else {
+                query = { organisation: { $in: orgs.map((org: any) => org) } };
+              }
+              Project.find(query, (err3: any, projects: any) => {
+                getProjectsFormattedData(
+                  projects,
+                  req.query.organisation_name
+                ).then((result: any) => {
+                  res(JSON.stringify(result));
+                });
+              });
             }
           );
         }
       );
     } else {
-      Project.get((err: any, projects: any) => {
+      if (startDate && endDate) {
+        query = { decision_date_unix: { $gte: startDate, $lt: endDate } };
+      }
+      Project.find(query, (err: any, projects: any) => {
         if (err) {
           res(JSON.stringify({ status: 'error', message: err.message }));
         }
