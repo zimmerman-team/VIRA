@@ -21,10 +21,10 @@ export function allPerson(req: any, res: any) {
             }
           : {},
       },
-      (err: any, data: any) => {
+      (err2: any, data: any) => {
         res.json({
-          data: data.filter((projects: any) => {
-            return projects.organisation != null;
+          data: data.filter((project: any) => {
+            return project.organisation != null;
           }),
         });
       }

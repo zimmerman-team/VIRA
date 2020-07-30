@@ -9,6 +9,9 @@ import {
   getGeoMapFormattedData,
   getSDGBubbleChartFormattedData,
   getPolicyPriorityBarChartFormattedData,
+  getRegularUserReportData,
+  getModeratorAdminUserReportData,
+  getSuperAdminUserReportData,
 } from '../utils/vizcontroller.utils';
 
 const selectQuery =
@@ -38,22 +41,13 @@ export function getPolicyPriorityBarChart(req: any, res: any) {
       get(req.query, 'userRole', '').toLowerCase() ===
       consts.roles.regular.toLowerCase()
     ) {
-      ResponsiblePerson.findOne(
-        { email: req.query.userEmail },
-        (err: any, person: any) => {
-          Project.find({ person: person }, (err: any, projects: any) => {
-            Report.find({ project: { $in: projects } })
-              .select(selectQuery)
-              .populate('policy_priority')
-              .exec((err: any, rawData: any) => {
-                res(
-                  JSON.stringify(
-                    getPolicyPriorityBarChartFormattedData(rawData)
-                  )
-                );
-              });
-          });
-        }
+      getRegularUserReportData(
+        req.query.userEmail,
+        selectQuery,
+        req.query.startDate,
+        req.query.endDate,
+        (rawData: any) =>
+          res(JSON.stringify(getPolicyPriorityBarChartFormattedData(rawData)))
       );
     } else if (
       get(req.query, 'userRole', '').toLowerCase() ===
@@ -61,44 +55,22 @@ export function getPolicyPriorityBarChart(req: any, res: any) {
       get(req.query, 'userRole', '').toLowerCase() ===
         consts.roles.mod.toLowerCase()
     ) {
-      ResponsiblePerson.find(
-        { email: req.query.userEmail },
-        (err: any, persons: any) => {
-          Organisation.find(
-            { _id: { $in: persons.map((p: any) => p.organisation) } },
-            (err: any, orgs: any) => {
-              Project.find(
-                { organisation: { $in: orgs.map((org: any) => org) } },
-                (err: any, projects: any) => {
-                  Report.find({ project: { $in: projects } })
-                    .select(selectQuery)
-                    .populate('policy_priority')
-                    .exec((err: any, rawData: any) => {
-                      res(
-                        JSON.stringify(
-                          getPolicyPriorityBarChartFormattedData(rawData)
-                        )
-                      );
-                    });
-                }
-              );
-            }
-          );
-        }
+      getModeratorAdminUserReportData(
+        req.query.userEmail,
+        selectQuery,
+        req.query.startDate,
+        req.query.endDate,
+        (rawData: any) =>
+          res(JSON.stringify(getPolicyPriorityBarChartFormattedData(rawData)))
       );
     } else {
-      const { startDate, endDate } = req.query;
-      let query;
-
-      if (startDate && endDate) {
-        query = { date_new: { $gte: startDate, $lt: endDate } };
-      }
-      Report.find(query)
-        .select(selectQuery)
-        .populate('policy_priority')
-        .exec((err: any, rawData: any) => {
-          res(JSON.stringify(getPolicyPriorityBarChartFormattedData(rawData)));
-        });
+      getSuperAdminUserReportData(
+        selectQuery,
+        req.query.startDate,
+        req.query.endDate,
+        (rawData: any) =>
+          res(JSON.stringify(getPolicyPriorityBarChartFormattedData(rawData)))
+      );
     }
   }
 }
@@ -126,18 +98,13 @@ export function getSDGBubbleChart(req: any, res: any) {
       get(req.query, 'userRole', '').toLowerCase() ===
       consts.roles.regular.toLowerCase()
     ) {
-      ResponsiblePerson.findOne(
-        { email: req.query.userEmail },
-        (err: any, person: any) => {
-          Project.find({ person: person }, (err: any, projects: any) => {
-            Report.find({ project: { $in: projects } })
-              .select(selectQuery)
-              .populate('policy_priority')
-              .exec((err: any, rawData: any) => {
-                res(JSON.stringify(getSDGBubbleChartFormattedData(rawData)));
-              });
-          });
-        }
+      getRegularUserReportData(
+        req.query.userEmail,
+        selectQuery,
+        req.query.startDate,
+        req.query.endDate,
+        (rawData: any) =>
+          res(JSON.stringify(getSDGBubbleChartFormattedData(rawData)))
       );
     } else if (
       get(req.query, 'userRole', '').toLowerCase() ===
@@ -145,42 +112,22 @@ export function getSDGBubbleChart(req: any, res: any) {
       get(req.query, 'userRole', '').toLowerCase() ===
         consts.roles.mod.toLowerCase()
     ) {
-      ResponsiblePerson.find(
-        { email: req.query.userEmail },
-        (err: any, persons: any) => {
-          Organisation.find(
-            { _id: { $in: persons.map((p: any) => p.organisation) } },
-            (err: any, orgs: any) => {
-              Project.find(
-                { organisation: { $in: orgs.map((org: any) => org) } },
-                (err: any, projects: any) => {
-                  Report.find({ project: { $in: projects } })
-                    .select(selectQuery)
-                    .populate('policy_priority')
-                    .exec((err: any, rawData: any) => {
-                      res(
-                        JSON.stringify(getSDGBubbleChartFormattedData(rawData))
-                      );
-                    });
-                }
-              );
-            }
-          );
-        }
+      getModeratorAdminUserReportData(
+        req.query.userEmail,
+        selectQuery,
+        req.query.startDate,
+        req.query.endDate,
+        (rawData: any) =>
+          res(JSON.stringify(getSDGBubbleChartFormattedData(rawData)))
       );
     } else {
-      const { startDate, endDate } = req.query;
-      let query;
-
-      if (startDate && endDate) {
-        query = { date_new: { $gte: startDate, $lt: endDate } };
-      }
-      Report.find(query)
-        .select(selectQuery)
-        .populate('policy_priority')
-        .exec((err: any, rawData: any) => {
-          res(JSON.stringify(getSDGBubbleChartFormattedData(rawData)));
-        });
+      getSuperAdminUserReportData(
+        selectQuery,
+        req.query.startDate,
+        req.query.endDate,
+        (rawData: any) =>
+          res(JSON.stringify(getSDGBubbleChartFormattedData(rawData)))
+      );
     }
   }
 }
@@ -209,11 +156,11 @@ export function getGeoMapData(req: any, res: any) {
       ResponsiblePerson.findOne(
         { email: req.query.userEmail },
         (err: any, person: any) => {
-          Project.find({ person: person }, (err: any, projects: any) => {
+          Project.find({ person: person }, (err1: any, projects: any) => {
             Report.find({ project: { $in: projects }, location: { $ne: null } })
               .select(mapSelectQuery)
               .populate('location')
-              .exec((err: any, rawData: any) => {
+              .exec((err2: any, rawData: any) => {
                 res(JSON.stringify(getGeoMapFormattedData(rawData)));
               });
           });
@@ -230,17 +177,17 @@ export function getGeoMapData(req: any, res: any) {
         (err: any, persons: any) => {
           Organisation.find(
             { _id: { $in: persons.map((p: any) => p.organisation) } },
-            (err: any, orgs: any) => {
+            (err1: any, orgs: any) => {
               Project.find(
                 { organisation: { $in: orgs.map((org: any) => org) } },
-                (err: any, projects: any) => {
+                (err2: any, projects: any) => {
                   Report.find({
                     project: { $in: projects },
                     location: { $ne: null },
                   })
                     .select(mapSelectQuery)
                     .populate('location')
-                    .exec((err: any, rawData: any) => {
+                    .exec((err3: any, rawData: any) => {
                       res(JSON.stringify(getGeoMapFormattedData(rawData)));
                     });
                 }

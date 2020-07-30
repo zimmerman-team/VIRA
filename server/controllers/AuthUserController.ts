@@ -7,13 +7,12 @@ import {
   addUserToGroup,
   assignRoleToUser,
   removeRoleFromUser,
+  getUsersForAdmin,
 } from '../utils/auth';
 import { makePass, genericError, authGenericError } from '../utils/general';
 
 import get from 'lodash/get';
-import some from 'lodash/some';
 import find from 'lodash/find';
-import filter from 'lodash/filter';
 
 import consts from '../config/consts';
 
@@ -22,28 +21,7 @@ const roles = consts.roles;
 function filterAllUsersBasedOnPermissions(user: any, users: any, groups: any) {
   let result = users;
   if (user.role === roles.admin) {
-    result = filter(result, d => {
-      let pass = false;
-      const dUserGroups = filter(groups, gr =>
-        some(gr.members, member => member === user.authId)
-      );
-      for (const dUserGroup of dUserGroups) {
-        for (const dUserGroupMember of dUserGroup.members) {
-          if (
-            dUserGroupMember === d.user_id &&
-            get(d, 'app_metadata.authorization.roles[0]', '') !== roles.superAdm
-          ) {
-            pass = true;
-            break;
-          }
-          if (pass) {
-            break;
-          }
-        }
-      }
-
-      return pass;
-    });
+    result = getUsersForAdmin(result, groups, user);
     if (result.length === 0) {
       const currentUserEmail = user.email;
       const currentUserAuth0 = find(result, {

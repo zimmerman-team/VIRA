@@ -11,7 +11,7 @@ const ResponsiblePerson = require('../models/responsiblePerson');
 export function generalSearchSocketAPI(req: any, res: any) {
   const { q } = req.query;
   let projects: any[] = [];
-  let reports: any[] = [];
+  const reports: any[] = [];
   let orgs: any[] = [];
 
   if (q) {
@@ -91,29 +91,29 @@ export function generalSearchSocketAPI(req: any, res: any) {
       ) {
         ResponsiblePerson.find(
           { ...responsiblePersonFilter },
-          (err: any, persons: any) => {
+          (err1: any, persons: any) => {
             Organisation.find({
               _id: { $in: persons.map((p: any) => p.organisation) },
               $or: orgsFilter,
-            }).exec((err1: any, orgsResults: any) => {
-              if (!err1) {
+            }).exec((err2: any, orgsResults: any) => {
+              if (!err2) {
                 orgs = orgsResults;
               }
               Project.find({
                 organisation: { $in: orgsResults.map((org: any) => org) },
                 $or: projectsFilter,
-              }).exec((err2: any, projectsResults: any) => {
-                if (!err2) {
+              }).exec((err3: any, projectsResults: any) => {
+                if (!err3) {
                   projects = projectsResults;
                 }
                 Report.find({
                   project: { $in: projectsResults },
                   $or: reportsFilter,
-                }).exec((err3: any, reportResults: any) => {
+                }).exec((err4: any, reportResults: any) => {
                   getSearchResults(
                     { projects, orgs, reports, reportResults },
                     res,
-                    err3
+                    err4
                   );
                 });
               });
@@ -123,14 +123,14 @@ export function generalSearchSocketAPI(req: any, res: any) {
       } else {
         Project.find({
           $or: projectsFilter,
-        }).exec((err: any, projectsResults: any) => {
-          if (!err) {
+        }).exec((err1: any, projectsResults: any) => {
+          if (!err1) {
             projects = projectsResults;
           }
           Organisation.find({
             $or: orgsFilter,
-          }).exec((err1: any, orgsResults: any) => {
-            if (!err1) {
+          }).exec((err2: any, orgsResults: any) => {
+            if (!err2) {
               orgs = orgsResults;
             }
             Report.find({
