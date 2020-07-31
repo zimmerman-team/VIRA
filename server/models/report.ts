@@ -64,7 +64,7 @@ const ReportSchema = new Schema({
   reportID: { type: Number, required: true },
   place_name: { type: String, required: false },
   isDraft: { type: Boolean, default: false, required: true },
-  funder: { type: Schema.Types.ObjectId, ref: funderSchema },
+  funders: [{ type: Schema.Types.ObjectId, ref: funderSchema }],
 });
 
 ReportSchema.plugin(autoIncrement.plugin, {
@@ -91,7 +91,7 @@ module.exports.get = (callback: any, limit: any) => {
       select: 'name',
     })
     .populate({
-      path: 'funder',
+      path: 'funders',
       select: 'name',
     })
     .limit(limit);

@@ -39,7 +39,7 @@ export function getReports(req: any, res: any) {
       .populate('project')
       .populate('target_beneficiaries')
       .populate('policy_priority')
-      .populate('funder')
+      .populate('funders')
       .exec((err: any, reports: any) => {
         res(JSON.stringify(getReportsFormattedData(err, reports)));
       });
@@ -57,7 +57,7 @@ export function getReports(req: any, res: any) {
               .populate('project')
               .populate('target_beneficiaries')
               .populate('policy_priority')
-              .populate('funder')
+              .populate('funders')
               .exec((err3: any, reports: any) => {
                 res(JSON.stringify(getReportsFormattedData(err3, reports)));
               });
@@ -84,7 +84,7 @@ export function getReports(req: any, res: any) {
                     .populate('project')
                     .populate('target_beneficiaries')
                     .populate('policy_priority')
-                    .populate('funder')
+                    .populate('funders')
                     .exec((err4: any, reports: any) => {
                       res(
                         JSON.stringify(getReportsFormattedData(err4, reports))
@@ -102,7 +102,7 @@ export function getReports(req: any, res: any) {
         .populate('project')
         .populate('target_beneficiaries')
         .populate('policy_priority')
-        .populate('funder')
+        .populate('funders')
         .exec((err: any, reports: any) => {
           res(JSON.stringify(getReportsFormattedData(err, reports)));
         });
@@ -125,7 +125,7 @@ export function getReport(req: any, res: any) {
     })
     .populate('target_beneficiaries')
     .populate('policy_priority')
-    .populate('funder')
+    .populate('funders')
     .exec((err: any, report: any) => {
       if (err) {
         res(JSON.stringify({ status: 'error', message: err.message }));
@@ -203,25 +203,39 @@ async function getPolicyPriority(data: any) {
   });
 }
 
-async function getFunder(data: any) {
+async function getFunders(data: any) {
   return new Promise((resolve, reject) => {
-    Funder.findOne({ name: data }).exec((err: any, funder: any) => {
-      if (err || !funder) {
-        if (data === '') {
-          resolve(null);
+    const result: any[] = [];
+    const totalCount = data.length;
+    let count = 0;
+    data.forEach((item: any) => {
+      Funder.findOne({ name: item }).exec((err: any, funder: any) => {
+        if (err || !funder) {
+          if (item !== '') {
+            Funder.create({ name: item }, (err2: any, funder2: any) => {
+              if (err2) {
+                console.log('err2', err2);
+                count++;
+                if (count === totalCount) {
+                  resolve(result);
+                }
+              } else {
+                result.push(funder2);
+                count++;
+                if (count === totalCount) {
+                  resolve(result);
+                }
+              }
+            });
+          }
         } else {
-          Funder.create({ name: data }, (err2: any, funder2: any) => {
-            if (err2) {
-              console.log('err2', err2);
-              resolve(null);
-            } else {
-              resolve(funder2);
-            }
-          });
+          result.push(funder);
+          count++;
+          if (count === totalCount) {
+            resolve(result);
+          }
         }
-      } else {
-        resolve(funder);
-      }
+      });
     });
   });
 }
@@ -268,7 +282,7 @@ export function addReport(req: any, res: any) {
               res(JSON.stringify({ status: 'error', message: err2.message }));
             }
             getLocation(data.location).then((location: any) => {
-              getFunder(data.funder).then((funder: any) => {
+              getFunders(data.funders).then((funders: any) => {
                 const report = new Report();
                 report.project = project;
                 report.title = data.title;
@@ -294,7 +308,7 @@ export function addReport(req: any, res: any) {
                 report.plans = data.plans;
                 report.other_comments = data.other_comments;
                 report.isDraft = data.isDraft ? data.isDraft : false;
-                report.funder = funder;
+                report.funders = funders;
                 report.save((err3: any, sreport: any) => {
                   if (err3) {
                     res(
@@ -351,7 +365,7 @@ export function editReport(req: any, res: any) {
                   );
                 }
                 getLocation(data.location).then((location: any) => {
-                  getFunder(data.funder).then((funder: any) => {
+                  getFunders(data.funders).then((funders: any) => {
                     report.title = data.title;
                     report.location = location;
                     report.place_name = data.place_name;
@@ -376,7 +390,7 @@ export function editReport(req: any, res: any) {
                     report.plans = data.plans;
                     report.other_comments = data.other_comments;
                     report.isDraft = data.isDraft ? data.isDraft : false;
-                    report.funder = funder;
+                    report.funders = funders;
                     report.save((err5: any, updatedRep: any) => {
                       if (err5) {
                         res(
