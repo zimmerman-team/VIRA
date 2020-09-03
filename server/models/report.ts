@@ -7,6 +7,8 @@ const targetBeneficiary = require('../models/targetBeneficiary');
 // @ts-ignore
 const policyPriority = require('../models/policyPriority');
 // @ts-ignore
+const pillar = require('../models/pillar');
+// @ts-ignore
 const funderSchema = require('../models/funder');
 // @ts-ignore
 const location = require('../models/location');
@@ -55,6 +57,11 @@ const ReportSchema = new Schema({
     ref: policyPriority,
     required: false,
   },
+  pillar: {
+    type: Schema.Types.ObjectId,
+    ref: pillar,
+    required: false,
+  },
   budget: { type: Number, required: true },
   insContribution: { type: Number, required: true },
   key_implementation_challenges: { type: String, required: true },
@@ -84,6 +91,10 @@ module.exports.get = (callback: any, limit: any) => {
     .populate('project')
     .populate({
       path: 'policy_priorities',
+      select: 'name',
+    })
+    .populate({
+      path: 'pillar',
       select: 'name',
     })
     .populate({
