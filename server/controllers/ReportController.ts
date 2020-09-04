@@ -412,14 +412,24 @@ export function addReport(req: any, res: any) {
                     report.budget = data.budget;
                     report.insContribution = data.insContribution;
                     report.key_outcomes = data.key_outcomes;
+                    report.inputs_invested = data.inputs_invested;
+                    report.activities_undertaken = data.activities_undertaken;
+                    report.projectgoals_socialbenefits =
+                      data.projectgoals_socialbenefits;
+                    report.important_factors = data.important_factors;
+                    report.orgs_partners = data.orgs_partners;
                     report.monitor_report_outcomes =
                       data.monitor_report_outcomes;
                     report.media = data.media;
                     report.key_implementation_challenges =
                       data.key_implementation_challenges;
+                    report.how_address_challenges = data.how_address_challenges;
                     report.other_project_outcomes = data.other_project_outcomes;
-                    report.plans = data.plans;
+                    report.how_important_insinger_support =
+                      data.how_important_insinger_support;
+                    report.apply_for_more_funding = data.apply_for_more_funding;
                     report.other_comments = data.other_comments;
+                    report.plans = data.plans;
                     report.isDraft = data.isDraft ? data.isDraft : false;
                     report.funders = funders;
                     report.save((err3: any, sreport: any) => {
@@ -503,15 +513,28 @@ export function editReport(req: any, res: any) {
                         report.budget = data.budget;
                         report.insContribution = data.insContribution;
                         report.key_outcomes = data.key_outcomes;
+                        report.inputs_invested = data.inputs_invested;
+                        report.activities_undertaken =
+                          data.activities_undertaken;
+                        report.projectgoals_socialbenefits =
+                          data.projectgoals_socialbenefits;
+                        report.important_factors = data.important_factors;
+                        report.orgs_partners = data.orgs_partners;
                         report.monitor_report_outcomes =
                           data.monitor_report_outcomes;
                         report.media = data.media;
                         report.key_implementation_challenges =
                           data.key_implementation_challenges;
+                        report.how_address_challenges =
+                          data.how_address_challenges;
                         report.other_project_outcomes =
                           data.other_project_outcomes;
-                        report.plans = data.plans;
+                        report.how_important_insinger_support =
+                          data.how_important_insinger_support;
+                        report.apply_for_more_funding =
+                          data.apply_for_more_funding;
                         report.other_comments = data.other_comments;
+                        report.plans = data.plans;
                         report.isDraft = data.isDraft ? data.isDraft : false;
                         report.funders = funders;
                         report.save((err5: any, updatedRep: any) => {
