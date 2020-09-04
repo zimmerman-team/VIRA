@@ -15,6 +15,8 @@ const location = require('../models/location');
 // @ts-ignore
 const project = require('../models/project');
 // @ts-ignore
+const reportToSdg = require('../models/reportToSdg');
+// @ts-ignore
 const { Schema } = mongoose;
 
 var connection = mongoose.createConnection(process.env.REACT_APP_MONGO_DB_URL);
@@ -59,6 +61,13 @@ const ReportSchema = new Schema({
       required: false,
     },
   ],
+  sdgs: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: reportToSdg,
+      required: false,
+    },
+  ],
   pillar: {
     type: Schema.Types.ObjectId,
     ref: pillar,
@@ -92,6 +101,7 @@ module.exports.get = (callback: any, limit: any) => {
     .populate('location')
     .populate('project')
     .populate('policy_priorities')
+    .populate('sdgs')
     .populate({
       path: 'pillar',
       select: 'name',
