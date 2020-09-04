@@ -5,7 +5,7 @@ const autoIncrement = require('mongoose-auto-increment');
 // @ts-ignore
 const targetBeneficiary = require('../models/targetBeneficiary');
 // @ts-ignore
-const policyPriority = require('../models/policyPriority');
+const reportToPolicyPriority = require('../models/reportToPolicyPriority');
 // @ts-ignore
 const pillar = require('../models/pillar');
 // @ts-ignore
@@ -52,11 +52,13 @@ const ReportSchema = new Schema({
   key_outcomes: { type: String, required: true },
   monitor_report_outcomes: { type: String, required: true },
   media: [{ type: String, required: false }],
-  policy_priority: {
-    type: Schema.Types.ObjectId,
-    ref: policyPriority,
-    required: false,
-  },
+  policy_priorities: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: reportToPolicyPriority,
+      required: false,
+    },
+  ],
   pillar: {
     type: Schema.Types.ObjectId,
     ref: pillar,
@@ -89,10 +91,7 @@ module.exports.get = (callback: any, limit: any) => {
     .find(callback)
     .populate('location')
     .populate('project')
-    .populate({
-      path: 'policy_priorities',
-      select: 'name',
-    })
+    .populate('policy_priorities')
     .populate({
       path: 'pillar',
       select: 'name',

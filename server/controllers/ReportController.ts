@@ -11,6 +11,7 @@ const Organisation = require('../models/Org');
 const Location = require('../models/location');
 import { sdgMapModel, sdgmap } from '../utils/sdgmap';
 const policyPriority = require('../models/policyPriority');
+const ReportToPolicyPriority = require('../models/reportToPolicyPriority');
 import { countryFeaturesData } from '../config/countryFeatures';
 const targetBeneficiary = require('../models/targetBeneficiary');
 const ResponsiblePerson = require('../models/responsiblePerson');
@@ -39,7 +40,7 @@ export function getReports(req: any, res: any) {
       .populate('location')
       .populate('project')
       .populate('target_beneficiaries')
-      .populate('policy_priority')
+      .populate('policy_priorities')
       .populate('funders')
       .exec((err: any, reports: any) => {
         res(JSON.stringify(getReportsFormattedData(err, reports)));
@@ -57,7 +58,7 @@ export function getReports(req: any, res: any) {
               .populate('location')
               .populate('project')
               .populate('target_beneficiaries')
-              .populate('policy_priority')
+              .populate('policy_priorities')
               .populate('funders')
               .exec((err3: any, reports: any) => {
                 res(JSON.stringify(getReportsFormattedData(err3, reports)));
@@ -84,7 +85,7 @@ export function getReports(req: any, res: any) {
                     .populate('location')
                     .populate('project')
                     .populate('target_beneficiaries')
-                    .populate('policy_priority')
+                    .populate('policy_priorities')
                     .populate('funders')
                     .exec((err4: any, reports: any) => {
                       res(
@@ -102,7 +103,7 @@ export function getReports(req: any, res: any) {
         .populate('location')
         .populate('project')
         .populate('target_beneficiaries')
-        .populate('policy_priority')
+        .populate('policy_priorities')
         .populate('funders')
         .exec((err: any, reports: any) => {
           res(JSON.stringify(getReportsFormattedData(err, reports)));
@@ -125,7 +126,7 @@ export function getReport(req: any, res: any) {
       },
     })
     .populate('target_beneficiaries')
-    .populate('policy_priority')
+    .populate('policy_priorities')
     .populate('funders')
     .exec((err: any, report: any) => {
       if (err) {
@@ -166,40 +167,61 @@ export function getReport(req: any, res: any) {
     });
 }
 
-async function getPolicyPriority(data: any) {
+async function getPolicyPriorities(data: any) {
   return new Promise((resolve, reject) => {
     const result: any = [];
     let count = 0;
-    const totalCount = [data].length;
-    [data].forEach((item: any) => {
-      policyPriority.findOne({ name: item }).exec((err: any, priority: any) => {
-        if (err || !priority) {
-          if (item === '') {
-            resolve(null);
+    const totalCount = data.length;
+    data.forEach((item: any) => {
+      policyPriority
+        .findOne({ name: item.name })
+        .exec((err: any, priority: any) => {
+          if (err || !priority) {
+            if (item === '') {
+              // resolve(null);
+              console.log('Empty policy priority name');
+            } else {
+              policyPriority.create(
+                { name: item },
+                (err2: any, priority2: any) => {
+                  if (err2) {
+                    console.log('err2', err2);
+                  } else {
+                    ReportToPolicyPriority.create(
+                      { policy_priority: priority2, weight: item.weight },
+                      (err3: any, reportToPP: any) => {
+                        if (err3) {
+                          console.log('err2', err3);
+                        } else {
+                          result.push(reportToPP);
+                          count++;
+                          if (count === totalCount) {
+                            resolve(result);
+                          }
+                        }
+                      }
+                    );
+                  }
+                }
+              );
+            }
           } else {
-            policyPriority.create(
-              { name: item },
-              (err2: any, priority2: any) => {
-                if (err2) {
-                  console.log('err2', err2);
+            ReportToPolicyPriority.create(
+              { policy_priority: priority, weight: item.weight },
+              (err: any, reportToPP: any) => {
+                if (err) {
+                  console.log('err2', err);
                 } else {
-                  result.push(priority2);
+                  result.push(reportToPP);
                   count++;
                   if (count === totalCount) {
-                    resolve(result[0]);
+                    resolve(result);
                   }
                 }
               }
             );
           }
-        } else {
-          result.push(priority);
-          count++;
-          if (count === totalCount) {
-            resolve(result[0]);
-          }
-        }
-      });
+        });
     });
   });
 }
@@ -292,7 +314,7 @@ export function addReport(req: any, res: any) {
   const { data } = req.query;
 
   getPillar(data.pillar).then(pillar => {
-    getPolicyPriority(data.policy_priority).then(pp => {
+    getPolicyPriorities(data.policy_priority).then(pp => {
       Project.findOne(
         { project_number: data.project },
         (err: any, project: any) => {
@@ -315,7 +337,7 @@ export function addReport(req: any, res: any) {
                   report.date = new Date().toLocaleDateString();
                   report.country = data.country;
                   report.target_beneficiaries = tb;
-                  report.policy_priority = pp;
+                  report.policy_priorities = pp;
                   report.pillar = pillar;
                   report.budget = data.budget;
                   report.total_target_beneficiaries =
@@ -382,7 +404,7 @@ export function editReport(req: any, res: any) {
       removeTargetBeneficiaries(report.targetBeneficiaries).then(
         (result: any) => {
           getPillar(data.pillar).then(pillar => {
-            getPolicyPriority(data.policy_priority).then(pp => {
+            getPolicyPriorities(data.policy_priority).then(pp => {
               targetBeneficiary.create(
                 data.target_beneficiaries,
                 (err3: any, tb: any) => {
@@ -402,7 +424,7 @@ export function editReport(req: any, res: any) {
                       report.date = new Date().toLocaleDateString();
                       report.country = data.country;
                       report.target_beneficiaries = tb;
-                      report.policy_priority = pp;
+                      report.policy_priorities = pp;
                       report.pillar = pillar;
                       report.budget = data.budget;
                       report.total_target_beneficiaries =
