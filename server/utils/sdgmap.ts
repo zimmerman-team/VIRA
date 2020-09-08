@@ -1,46 +1,7 @@
 // @ts-nocheck
 import get from 'lodash/get';
-import find from 'lodash/find';
 import minBy from 'lodash/minBy';
 import findIndex from 'lodash/findIndex';
-
-const policyPriorities = [
-  {
-    key: 'Poverty reduction with a focus on youth and children',
-    name: 'poverty',
-    sdgs: [1, 3, 4, 8, 10],
-  },
-  {
-    key: 'Refugees',
-    name: 'refugees',
-    sdgs: [1, 2, 3, 4, 5, 8, 10],
-  },
-  {
-    key: 'The Elderly',
-    name: 'elderly',
-    sdgs: [1, 3, 8, 10],
-  },
-  {
-    key: 'Prisoner rehabilitation / reintegration',
-    name: 'prisoner',
-    sdgs: [1, 3, 4, 5, 8, 10],
-  },
-  {
-    key: 'Drug use',
-    name: 'drug_use',
-    sdgs: [1, 3, 8, 10],
-  },
-  {
-    key: 'Prostitution',
-    name: 'prostitution',
-    sdgs: [1, 3, 5, 8, 10],
-  },
-  {
-    key: 'Homelessness',
-    name: 'homelessness',
-    sdgs: [1, 2, 3, 4, 5, 8, 10, 11],
-  },
-];
 
 export interface sdgMapModel {
   name: string;
@@ -55,7 +16,7 @@ export interface sdgMapModel {
 }
 
 export function sdgmap(reports: any): sdgMapModel[] {
-  const sdgs: sdgMapModel[] = [
+  const resultSDGs: sdgMapModel[] = [
     {
       name: 'sdgs.1',
       color: '#E5243D',
@@ -87,10 +48,28 @@ export function sdgmap(reports: any): sdgMapModel[] {
       opacity: 0.2,
     },
     {
+      name: 'sdgs.6',
+      color: '#28BFE6',
+      opacity: 0.2,
+      number: 6,
+    },
+    {
+      name: 'sdgs.7',
+      color: '#FBC412',
+      opacity: 0.2,
+      number: 7,
+    },
+    {
       name: 'sdgs.8',
       color: '#A31C44',
       number: 8,
       opacity: 0.2,
+    },
+    {
+      name: 'sdgs.9',
+      color: '#F26A2E',
+      opacity: 0.2,
+      number: 9,
     },
     {
       name: 'sdgs.10',
@@ -104,45 +83,81 @@ export function sdgmap(reports: any): sdgMapModel[] {
       number: 11,
       opacity: 0.2,
     },
+    {
+      name: 'sdgs.12',
+      color: '#F89D2A',
+      number: 12,
+      opacity: 0.2,
+    },
+    {
+      name: 'sdgs.13',
+      color: '#407F46',
+      number: 13,
+      opacity: 0.2,
+    },
+    {
+      name: 'sdgs.14',
+      color: '#1F96D4',
+      number: 14,
+      opacity: 0.2,
+    },
+    {
+      name: 'sdgs.15',
+      color: '#59BA47',
+      number: 15,
+      opacity: 0.2,
+    },
+    {
+      name: 'sdgs.16',
+      color: '#136A9F',
+      number: 16,
+      opacity: 0.2,
+    },
+    {
+      name: 'sdgs.17',
+      color: '#14496B',
+      number: 17,
+      opacity: 0.2,
+    },
   ];
-  let result: any[] = [];
   reports.forEach((report: any) => {
-    const pp = find(policyPriorities, { key: report.policy_priority.name });
-    if (pp) {
-      const nOfSdgs = pp.sdgs.length;
-      const sharedTarget = report.total_target_beneficiaries;
-      // Math.round(
-      //   report.total_target_beneficiaries / nOfSdgs
-      // );
-      const sharedCommited = report.total_target_beneficiaries_commited; // / nOfSdgs;
-      const sharedBudget = report.budget / nOfSdgs;
-      const sharedInsCommit = report.insContribution / nOfSdgs;
-      pp.sdgs.forEach((sdgNum: number) => {
-        const index = findIndex(sdgs, { number: sdgNum });
-        if (index > -1) {
-          if (sdgs[index].opacity < 1) {
-            sdgs[index].targetValue = sharedTarget;
-            sdgs[index].insContribution = sharedInsCommit;
-            sdgs[index].loc = sharedBudget;
-            sdgs[index].commited = sharedCommited;
-            sdgs[index].opacity = 1;
-          } else {
-            if (sdgs[index].targetValue)
-              sdgs[index].targetValue += sharedTarget;
-            if (sdgs[index].insContribution)
-              sdgs[index].insContribution += sharedInsCommit;
-            if (sdgs[index].loc) sdgs[index].loc += sharedBudget;
-            if (sdgs[index].commited) sdgs[index].commited += sharedCommited;
+    const totBudget = report.budget;
+    const totInsCommit = report.insContribution;
+    const sharedTarget = report.total_target_beneficiaries;
+    const sharedCommited = report.total_target_beneficiaries_commited;
+    report.sdgs.forEach((sdg: any) => {
+      const sharedBudget = (totBudget * sdg.weight) / 100;
+      const sharedInsCommit = (totInsCommit * sdg.weight) / 100;
+      const index = findIndex(resultSDGs, { number: sdg.sdg.code });
+      if (index > -1) {
+        if (resultSDGs[index].opacity < 1) {
+          resultSDGs[index].targetValue = sharedTarget;
+          resultSDGs[index].insContribution = sharedInsCommit;
+          resultSDGs[index].loc = sharedBudget;
+          resultSDGs[index].commited = sharedCommited;
+          resultSDGs[index].opacity = 1;
+        } else {
+          if (resultSDGs[index].targetValue) {
+            resultSDGs[index].targetValue += sharedTarget;
+          }
+          if (resultSDGs[index].insContribution) {
+            resultSDGs[index].insContribution += sharedInsCommit;
+          }
+          if (resultSDGs[index].loc) {
+            resultSDGs[index].loc += sharedBudget;
+          }
+          if (resultSDGs[index].commited) {
+            resultSDGs[index].commited += sharedCommited;
           }
         }
-      });
-    }
+      }
+    });
   });
-  const minValue = get(minBy(sdgs, 'loc'), 'loc', 0);
-  result = sdgs.map((r: any) => ({
-    ...r,
-    loc: !r.loc ? minValue : r.loc,
-    targetPercentage: (r.commited / r.targetValue) * 100,
+  const minValue = get(minBy(resultSDGs, 'loc'), 'loc', 0);
+  const result: any[] = resultSDGs.map((resultSDG: any) => ({
+    ...resultSDG,
+    loc: !resultSDG.loc ? minValue : resultSDG.loc,
+    targetPercentage: (resultSDG.commited / resultSDG.targetValue) * 100,
   }));
   return result;
 }

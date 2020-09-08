@@ -18,6 +18,7 @@ import { countryFeaturesData } from '../config/countryFeatures';
 const targetBeneficiary = require('../models/targetBeneficiary');
 const ResponsiblePerson = require('../models/responsiblePerson');
 import { getReportsFormattedData } from '../utils/reportcontroller.utils';
+import { getPolicyPriorityBarChartFormattedData } from '../utils/vizcontroller.utils';
 
 // get all reports or reports of a project
 export function getReports(req: any, res: any) {
@@ -42,8 +43,21 @@ export function getReports(req: any, res: any) {
       .populate('location')
       .populate('project')
       .populate('target_beneficiaries')
-      .populate('policy_priorities')
-      .populate('sdgs')
+      .populate({
+        path: 'policy_priorities',
+        populate: {
+          path: 'policy_priority',
+          model: 'policyPriority',
+        },
+      })
+      .populate('pillar')
+      .populate({
+        path: 'sdgs',
+        populate: {
+          path: 'sdg',
+          model: 'sdg',
+        },
+      })
       .populate('funders')
       .exec((err: any, reports: any) => {
         res(JSON.stringify(getReportsFormattedData(err, reports)));
@@ -61,8 +75,21 @@ export function getReports(req: any, res: any) {
               .populate('location')
               .populate('project')
               .populate('target_beneficiaries')
-              .populate('policy_priorities')
-              .populate('sdgs')
+              .populate({
+                path: 'policy_priorities',
+                populate: {
+                  path: 'policy_priority',
+                  model: 'policyPriority',
+                },
+              })
+              .populate('pillar')
+              .populate({
+                path: 'sdgs',
+                populate: {
+                  path: 'sdg',
+                  model: 'sdg',
+                },
+              })
               .populate('funders')
               .exec((err3: any, reports: any) => {
                 res(JSON.stringify(getReportsFormattedData(err3, reports)));
@@ -89,8 +116,21 @@ export function getReports(req: any, res: any) {
                     .populate('location')
                     .populate('project')
                     .populate('target_beneficiaries')
-                    .populate('policy_priorities')
-                    .populate('sdgs')
+                    .populate({
+                      path: 'policy_priorities',
+                      populate: {
+                        path: 'policy_priority',
+                        model: 'policyPriority',
+                      },
+                    })
+                    .populate('pillar')
+                    .populate({
+                      path: 'sdgs',
+                      populate: {
+                        path: 'sdg',
+                        model: 'sdg',
+                      },
+                    })
                     .populate('funders')
                     .exec((err4: any, reports: any) => {
                       res(
@@ -108,7 +148,21 @@ export function getReports(req: any, res: any) {
         .populate('location')
         .populate('project')
         .populate('target_beneficiaries')
-        .populate('policy_priorities')
+        .populate({
+          path: 'policy_priorities',
+          populate: {
+            path: 'policy_priority',
+            model: 'policyPriority',
+          },
+        })
+        .populate('pillar')
+        .populate({
+          path: 'sdgs',
+          populate: {
+            path: 'sdg',
+            model: 'sdg',
+          },
+        })
         .populate('funders')
         .exec((err: any, reports: any) => {
           res(JSON.stringify(getReportsFormattedData(err, reports)));
@@ -131,8 +185,21 @@ export function getReport(req: any, res: any) {
       },
     })
     .populate('target_beneficiaries')
-    .populate('policy_priorities')
-    .populate('sdgs')
+    .populate({
+      path: 'policy_priorities',
+      populate: {
+        path: 'policy_priority',
+        model: 'policyPriority',
+      },
+    })
+    .populate('pillar')
+    .populate({
+      path: 'sdgs',
+      populate: {
+        path: 'sdg',
+        model: 'sdg',
+      },
+    })
     .populate('funders')
     .exec((err: any, report: any) => {
       if (err) {
@@ -162,11 +229,13 @@ export function getReport(req: any, res: any) {
         const reportData = {
           ...report._doc,
         };
+        const barchartData = getPolicyPriorityBarChartFormattedData([report]);
         res(
           JSON.stringify({
             report: reportData,
             mapData: mapData,
             sdgVizData: sdgVizData,
+            barchartData: barchartData,
           })
         );
       }
@@ -268,7 +337,7 @@ async function getSDGs(data: any) {
           }
         } else {
           ReportToSdg.create(
-            { policy_priority: sdg, weight: item.weight },
+            { sdg: sdg, weight: item.weight },
             (err: any, reportToSDG: any) => {
               if (err) {
                 console.log('err', err);
@@ -376,7 +445,7 @@ export function addReport(req: any, res: any) {
 
   getSDGs(data.sdgs).then((sdgs: any) => {
     getPillar(data.pillar).then(pillar => {
-      getPolicyPriorities(data.policy_priority).then(pp => {
+      getPolicyPriorities(data.policy_priorities).then(pp => {
         Project.findOne(
           { project_number: data.project },
           (err: any, project: any) => {
@@ -482,7 +551,7 @@ export function editReport(req: any, res: any) {
         (result: any) => {
           getSDGs(data.sdgs).then((sdgs: any) => {
             getPillar(data.pillar).then(pillar => {
-              getPolicyPriorities(data.policy_priority).then(pp => {
+              getPolicyPriorities(data.policy_priorities).then(pp => {
                 targetBeneficiary.create(
                   data.target_beneficiaries,
                   (err3: any, tb: any) => {

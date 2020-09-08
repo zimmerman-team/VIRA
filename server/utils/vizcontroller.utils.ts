@@ -14,28 +14,27 @@ import { countryFeaturesData } from '../config/countryFeatures';
 const ResponsiblePerson = require('../models/responsiblePerson');
 import { policyPriorities } from '../assets/mock/policyPriorities';
 
-function getPolicyPriorityData(rawData: any) {
+function getPolicyPriorityData(
+  rawData: any,
+  totTarget: number,
+  totCommitted: number
+) {
   const result: any[] = [];
-  const groupedData = groupBy(rawData, 'policy_priority.name');
+  const groupedData = groupBy(rawData, 'name');
   Object.keys(groupedData).forEach(key => {
     if (key !== 'undefined') {
-      const totTarget = sumBy(groupedData[key], 'total_target_beneficiaries');
-      const totCommitted = sumBy(
-        groupedData[key],
-        'total_target_beneficiaries_commited'
-      );
-      const totDiff = totTarget - totCommitted;
-      const totBudget = sumBy(groupedData[key], 'budget');
-      const totInsingerCommitment = sumBy(groupedData[key], 'insContribution');
-
+      const value1 = sumBy(groupedData[key], 'value1');
+      const value2 = sumBy(groupedData[key], 'value2');
+      const value3 = sumBy(groupedData[key], 'value3');
+      const value4 = sumBy(groupedData[key], 'value4');
       result.push({
         name: key,
-        value1: Math.min(totTarget, totCommitted),
-        value2: totDiff < 0 ? totDiff * -1 : totDiff,
-        value3: totBudget,
-        value4: totInsingerCommitment,
+        value1: value1,
+        value2: value2 < 0 ? value2 * -1 : value2,
+        value3: sumBy(groupedData[key], 'value3'),
+        value4: sumBy(groupedData[key], 'value4'),
         value1Color: Colors.primary.main,
-        value2Color: totDiff > 0 ? Colors.grey[500] : '#05c985',
+        value2Color: value2 > 0 ? Colors.grey[500] : '#05c985',
         value4Color: Colors.chart.darkSkyBlue,
         tooltip: {
           title: key,
@@ -49,7 +48,7 @@ function getPolicyPriorityData(rawData: any) {
             },
             {
               label: 'Budget',
-              value: totBudget.toLocaleString(undefined, {
+              value: value3.toLocaleString(undefined, {
                 currency: 'EUR',
                 currencyDisplay: 'symbol',
                 style: 'currency',
@@ -57,8 +56,8 @@ function getPolicyPriorityData(rawData: any) {
             },
             {
               label: 'Insinger Contribution',
-              value: totInsingerCommitment
-                ? totInsingerCommitment.toLocaleString(undefined, {
+              value: value4
+                ? value4.toLocaleString(undefined, {
                     currency: 'EUR',
                     currencyDisplay: 'symbol',
                     style: 'currency',
@@ -73,11 +72,43 @@ function getPolicyPriorityData(rawData: any) {
   return result;
 }
 
+function getReportPolicyPriorities(reports: any) {
+  const result: any[] = [];
+  reports.forEach((report: any) => {
+    const r_policy_priorities = report.policy_priorities;
+    const totBudget = report.budget;
+    const totInsCommit = report.insContribution;
+    const sharedTarget = report.total_target_beneficiaries;
+    const sharedCommited = report.total_target_beneficiaries_commited;
+    r_policy_priorities.forEach((pp: any) => {
+      if (pp !== undefined) {
+        const sharedBudget = (totBudget * pp.weight) / 100;
+        const sharedInsCommit = (totInsCommit * pp.weight) / 100;
+        const diff = sharedTarget - sharedCommited;
+        result.push({
+          name: pp.policy_priority.name,
+          value1: Math.min(sharedTarget, sharedCommited),
+          value2: diff > 0 ? diff * -1 : diff,
+          value3: sharedBudget,
+          value4: sharedInsCommit,
+        });
+      }
+    });
+  });
+  return result;
+}
+
 export function getPolicyPriorityBarChartFormattedData(rawData: any) {
-  const data = filter(rawData, { isDraft: false });
+  const filteredReports = filter(rawData, { isDraft: false });
+  const data = getReportPolicyPriorities(filteredReports);
+  const totTarget = sumBy(filteredReports, 'total_target_beneficiaries');
+  const totCommitted = sumBy(
+    filteredReports,
+    'total_target_beneficiaries_commited'
+  );
   let result: any[] = [];
   if (data) {
-    result = getPolicyPriorityData(data);
+    result = getPolicyPriorityData(data, totTarget, totCommitted);
     policyPriorities.forEach((priority: any) => {
       const foundPriorityIndex = findIndex(result, {
         name: priority.value,
@@ -146,7 +177,20 @@ export function getRegularUserReportData(
       }
       Report.find(query)
         .select(selectQuery)
-        .populate('policy_priority')
+        .populate({
+          path: 'policy_priorities',
+          populate: {
+            path: 'policy_priority',
+            model: 'policyPriority',
+          },
+        })
+        .populate({
+          path: 'sdgs',
+          populate: {
+            path: 'sdg',
+            model: 'sdg',
+          },
+        })
         .exec((err2: any, rawData: any) => {
           cb(rawData);
         });
@@ -179,7 +223,20 @@ export function getModeratorAdminUserReportData(
             }
             Report.find(query)
               .select(selectQuery)
-              .populate('policy_priority')
+              .populate({
+                path: 'policy_priorities',
+                populate: {
+                  path: 'policy_priority',
+                  model: 'policyPriority',
+                },
+              })
+              .populate({
+                path: 'sdgs',
+                populate: {
+                  path: 'sdg',
+                  model: 'sdg',
+                },
+              })
               .exec((err3: any, rawData: any) => {
                 cb(rawData);
               });
@@ -202,7 +259,20 @@ export function getSuperAdminUserReportData(
   }
   Report.find(query)
     .select(selectQuery)
-    .populate('policy_priority')
+    .populate({
+      path: 'policy_priorities',
+      populate: {
+        path: 'policy_priority',
+        model: 'policyPriority',
+      },
+    })
+    .populate({
+      path: 'sdgs',
+      populate: {
+        path: 'sdg',
+        model: 'sdg',
+      },
+    })
     .exec((err: any, rawData: any) => {
       cb(rawData);
     });

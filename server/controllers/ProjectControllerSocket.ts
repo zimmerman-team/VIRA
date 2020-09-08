@@ -264,7 +264,20 @@ export function getProjectBudgetData(req: any, res: any) {
       if (project) {
         Report.find({ project: project })
           .select('budget')
-          .populate('policy_priority')
+          .populate({
+            path: 'policy_priorities',
+            populate: {
+              path: 'policy_priority',
+              model: 'policyPriority',
+            },
+          })
+          .populate({
+            path: 'sdgs',
+            populate: {
+              path: 'sdg',
+              model: 'sdg',
+            },
+          })
           .exec((err2: any, reports: any) => {
             if (reports) {
               const fReports = exludeReportID

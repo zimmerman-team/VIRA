@@ -108,8 +108,20 @@ module.exports.get = (callback: any, limit: any) => {
     .find(callback)
     .populate('location')
     .populate('project')
-    .populate('policy_priorities')
-    .populate('sdgs')
+    .populate({
+      path: 'policy_priorities',
+      populate: {
+        path: 'policy_priority',
+        model: 'policyPriority',
+      },
+    })
+    .populate({
+      path: 'sdgs',
+      populate: {
+        path: 'sdg',
+        model: 'sdg',
+      },
+    })
     .populate({
       path: 'pillar',
       select: 'name',
