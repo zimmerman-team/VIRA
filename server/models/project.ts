@@ -22,6 +22,7 @@ const ProjectSchema = new mongoose.Schema({
   decision: { type: String, required: false },
   allocated_amount: { type: Number, required: false },
   released_amount: { type: Number, required: false },
+  multi_year: { type: Boolean, required: false },
   paid_amount: { type: Number, required: false },
   organisation: {
     type: mongoose.Schema.Types.ObjectId,

@@ -85,7 +85,7 @@ export function sdgmap(reports: any): sdgMapModel[] {
     },
     {
       name: 'sdgs.12',
-      color: '#F89D2A',
+      color: '#BF8D2C',
       number: 12,
       opacity: 0.2,
     },

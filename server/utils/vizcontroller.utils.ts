@@ -27,12 +27,16 @@ function getPolicyPriorityData(
       const value2 = sumBy(groupedData[key], 'value2');
       const value3 = sumBy(groupedData[key], 'value3');
       const value4 = sumBy(groupedData[key], 'value4');
+      const value5 = sumBy(groupedData[key], 'value5');
+      const value6 = sumBy(groupedData[key], 'value6');
       result.push({
         name: key,
         value1: value1,
         value2: value2 < 0 ? value2 * -1 : value2,
         value3: sumBy(groupedData[key], 'value3'),
         value4: sumBy(groupedData[key], 'value4'),
+        value5: value5,
+        value6: value6,
         value1Color: Colors.primary.main,
         value2Color: value2 > 0 ? Colors.grey[500] : '#05c985',
         value4Color: Colors.chart.darkSkyBlue,
@@ -91,6 +95,8 @@ function getReportPolicyPriorities(reports: any) {
           value2: diff > 0 ? diff * -1 : diff,
           value3: sharedBudget,
           value4: sharedInsCommit,
+          value5: sharedCommited,
+          value6: sharedTarget,
         });
       }
     });
@@ -120,6 +126,8 @@ export function getPolicyPriorityBarChartFormattedData(rawData: any) {
           value2: 0,
           value3: 0,
           value4: 0,
+          value5: 0,
+          value6: 0,
           value1Color: Colors.primary.main,
           value2Color: Colors.grey[500],
           value4Color: Colors.chart.darkSkyBlue,
@@ -191,6 +199,9 @@ export function getRegularUserReportData(
             model: 'sdg',
           },
         })
+        .populate('project')
+        .populate('pillar')
+        .populate('target_beneficiaries')
         .exec((err2: any, rawData: any) => {
           cb(rawData);
         });
@@ -237,6 +248,9 @@ export function getModeratorAdminUserReportData(
                   model: 'sdg',
                 },
               })
+              .populate('project')
+              .populate('pillar')
+              .populate('target_beneficiaries')
               .exec((err3: any, rawData: any) => {
                 cb(rawData);
               });
@@ -273,6 +287,9 @@ export function getSuperAdminUserReportData(
         model: 'sdg',
       },
     })
+    .populate('project')
+    .populate('pillar')
+    .populate('target_beneficiaries')
     .exec((err: any, rawData: any) => {
       cb(rawData);
     });

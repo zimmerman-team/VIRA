@@ -271,6 +271,7 @@ async function checkAndAddProjects(data: any) {
                       organisation: organisation,
                       category: category,
                       person: person,
+                      multi_year: project.duration === 'Meerjarig',
                     }).save((err: any, doc: any) => {
                       count++;
                       if (count === totalCount) {
