@@ -1,0 +1,87 @@
+[
+  {
+    "code": 1,
+    "name": "No poverty",
+    "description": "End poverty in all its forms everywhere. Poverty eradication in all its dimensions according to national defenitions. Access to daily essentials, basic services, economic resources etc."
+  },
+  {
+    "code": 2,
+    "name": "Zero hunger",
+    "description": "End hunger, achieve food security and improved nutrition and promote sustainable agriculture. This inclused ending all forms of malnutrition for everyone. Increase agricultural productivity of small-scale food producers. Ensure sustainable food production and climate change resilient practices that help maintain the ecosystems and biodiversity."
+  },
+  {
+    "code": 3,
+    "name": "Good health and well-being",
+    "description": "Ensure healthy lives and promote well-being for all at all ages. Both physical as well as mental health. Fight diseases and epidemics/pandemics. End preventable deaths. Strengthen the prevention of substance abuse. Ensure universal access to sexual and reproductive healthcare."
+  },
+  {
+    "code": 4,
+    "name": "Quality education",
+    "description": "Ensure inclusive and equitable quality education and promote lifelong learning opportunities for all. Ensure inclusive and equitable quality education and promote lifelong learning opportunities for all. Vocational & job training for employment. Including persons with disabilities, indigenous peoples and children in vulnerable situations"
+  },
+  {
+    "code": 5,
+    "name": "Gender equality",
+    "description": "Achieve gender equality and empower all women and girls. Ensure women’s full and effective participation and equal opportunities for leadership at all levels of decision-making in political, economic and public life. Eliminate all forms of violence against all women and girls in the public and private spheres, including trafficking and sexual and other types of exploitation. Universal access to sexual and reproductive health and reproductive rights. Equal rights for women to economic resources."
+  },
+  {
+    "code": 6,
+    "name": "Clean water and sanitation",
+    "description": "Ensure availability and sustainable management of water and sanitation for all. Adequate and equitable sanitation and hygiene for all. substantially increase water-use efficiency across all sectors and ensure sustainable withdrawals and supply of freshwater to address water scarcity and substantially reduce the number of people suffering from water scarcity. Protect and restore water- related ecosystems, including mountains, forests, wetlands, rivers, aquifers and lakes."
+  },
+  {
+    "code": 7,
+    "name": "Affordable and clean energy",
+    "description": "Ensure access to affordable, reliable, sustainable and modern energy for all. Increase the share of renewable energy and improve energy efficiency."
+  },
+  {
+    "code": 8,
+    "name": "Decent work and economic growth",
+    "description": "Promote sustained, inclusive and sustainable economic growth, full and productive employment and decent work for a. Promote development-oriented policies that support productive activities, decent job creation, entrepreneurship, creativity and innovations. Sustainable tourism, eradicate forced labour, end modern slavery and trafficking, promote youth employment. Sustainable consumption and decouple economic activity from resource use and environmental degradation."
+  },
+  {
+    "code": 9,
+    "name": "Industry, innovation and infrastructure",
+    "description": "Build resilient infrastructure, promote inclusive and sustainable industrialization and foster innovation"
+  },
+  {
+    "code": 10,
+    "name": "Reduce inequalities",
+    "description": "Reduce inequality within and among countries. Promote and sustain income growth for people with lower income. Empower and promote the social, economic and political inclusion of all."
+  },
+  {
+    "code": 11,
+    "name": "Sustainable cities and communities",
+    "description": "Make cities and human settlements inclusive, safe, resilient and sustainable. Access for all to adequate, safe and affordable housing and basic services, upgrade slums, sustainable transport systems for all, protect and safeguard the world’s cultural and natural heritage, resilience to disasters, improve environmental impact of cities and air quality, improve green public spaces & accessibility."
+  },
+  {
+    "code": 12,
+    "name": "Responsible consumption and production",
+    "description": "Ensure sustainable consumption and production patterns. Promote the sustainable management and efficient use of natural resources. Reduce food waste. Environmentally sound management of chemicals and wastes. Reduce waste through prevention, reduction, reuse and recycling. Adopt sustainable practices in business. Public sustainable procurement. Improve awareness of sustainable practices and norms in harmony with nature."
+  },
+  {
+    "code": 13,
+    "name": "Climate action",
+    "description": "Take urgent action to combat climate change and its impacts. Strengthen resilience and adaptive capacity to climate-related hazards and natural disasters in all countries. Integrate climate change measures in policies, practices and planning."
+  },
+  {
+    "code": 14,
+    "name": "Life below water",
+    "description": "Conserve and sustainably use the oceans, seas and marine resources for sustainable development. Reduce marine pollution, manage and protect the ecosystems, implement sustainable practices and combat overfishing and depletion of fish stocks."
+  },
+  {
+    "code": 15,
+    "name": "Life on land",
+    "description": "Protect, restore and promote sustainable use of terrestrial ecosystems, sustainably manage forests, combat desertification, and halt and reverse land degradation and halt biodiversity loss"
+  },
+  {
+    "code": 16,
+    "name": "Peace, justice and strong institutions",
+    "description": "Promote peaceful and inclusive societies for sustainable development, provide access to justice for all and build effective, accountable and inclusive institutions at all levels. Reduce violence, corruption, crime etc. Promote the rule of law and ensure equal access to justice for all. Ensure public access to information and protect fundamental freedoms."
+  },
+  {
+    "code": 17,
+    "name": "Partnerships for the goals",
+    "description": "Strengthen the means of implementation and revitalize the Global Partnership for Sustainable Development Finance"
+  }
+]

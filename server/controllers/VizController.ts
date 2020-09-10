@@ -15,7 +15,7 @@ import {
 } from '../utils/vizcontroller.utils';
 
 const selectQuery =
-  'policy_priority total_target_beneficiaries total_target_beneficiaries_commited budget isDraft insContribution';
+  'policy_priorities sdgs total_target_beneficiaries total_target_beneficiaries_commited budget isDraft insContribution';
 
 const mapSelectQuery = 'location budget place_name country isDraft';
 
@@ -32,7 +32,20 @@ export function getPolicyPriorityBarChart(req: any, res: any) {
     }
     Report.find(query)
       .select(selectQuery)
-      .populate('policy_priority')
+      .populate({
+        path: 'policy_priorities',
+        populate: {
+          path: 'policy_priority',
+          model: 'policyPriority',
+        },
+      })
+      .populate({
+        path: 'sdgs',
+        populate: {
+          path: 'sdg',
+          model: 'sdg',
+        },
+      })
       .exec((err: any, rawData: any) => {
         res(JSON.stringify(getPolicyPriorityBarChartFormattedData(rawData)));
       });
@@ -89,7 +102,20 @@ export function getSDGBubbleChart(req: any, res: any) {
 
     Report.find(query)
       .select(selectQuery)
-      .populate('policy_priority')
+      .populate({
+        path: 'policy_priorities',
+        populate: {
+          path: 'policy_priority',
+          model: 'policyPriority',
+        },
+      })
+      .populate({
+        path: 'sdgs',
+        populate: {
+          path: 'sdg',
+          model: 'sdg',
+        },
+      })
       .exec((err: any, rawData: any) => {
         res(JSON.stringify(getSDGBubbleChartFormattedData(rawData)));
       });

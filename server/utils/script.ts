@@ -113,6 +113,9 @@ export function modifyProject(ProjObj: any, newData: any) {
     if (ProjObj.decision !== newData.decision) {
       ProjObj.decision = newData.decision;
     }
+    if (ProjObj.multi_year !== (newData.duration === 'Meerjarig')) {
+      ProjObj.paid_amount = newData.duration === 'Meerjarig';
+    }
     if (ProjObj.released_amount !== newData.released_amount) {
       ProjObj.released_amount = newData.released_amount;
     }

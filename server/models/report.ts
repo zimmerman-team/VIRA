@@ -5,13 +5,17 @@ const autoIncrement = require('mongoose-auto-increment');
 // @ts-ignore
 const targetBeneficiary = require('../models/targetBeneficiary');
 // @ts-ignore
-const policyPriority = require('../models/policyPriority');
+const reportToPolicyPriority = require('../models/reportToPolicyPriority');
+// @ts-ignore
+const pillar = require('../models/pillar');
 // @ts-ignore
 const funderSchema = require('../models/funder');
 // @ts-ignore
 const location = require('../models/location');
 // @ts-ignore
 const project = require('../models/project');
+// @ts-ignore
+const reportToSdg = require('../models/reportToSdg');
 // @ts-ignore
 const { Schema } = mongoose;
 
@@ -47,24 +51,46 @@ const ReportSchema = new Schema({
     required: false,
   },
   project: { type: Schema.Types.ObjectId, ref: project, index: true },
-  key_outcomes: { type: String, required: true },
-  monitor_report_outcomes: { type: String, required: true },
   media: [{ type: String, required: false }],
-  policy_priority: {
+  policy_priorities: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: reportToPolicyPriority,
+      required: false,
+    },
+  ],
+  sdgs: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: reportToSdg,
+      required: false,
+    },
+  ],
+  pillar: {
     type: Schema.Types.ObjectId,
-    ref: policyPriority,
+    ref: pillar,
     required: false,
   },
   budget: { type: Number, required: true },
   insContribution: { type: Number, required: true },
-  key_implementation_challenges: { type: String, required: true },
-  other_project_outcomes: { type: String, required: true },
-  plans: { type: String, required: true },
-  other_comments: { type: String, required: true },
   reportID: { type: Number, required: true },
   place_name: { type: String, required: false },
   isDraft: { type: Boolean, default: false, required: true },
   funders: [{ type: Schema.Types.ObjectId, ref: funderSchema }],
+  key_outcomes: { type: String, required: true },
+  monitor_report_outcomes: { type: String, required: true },
+  inputs_invested: { type: String, required: true },
+  activities_undertaken: { type: String, required: true },
+  projectgoals_socialbenefits: { type: String, required: true },
+  important_factors: { type: String, required: true },
+  orgs_partners: { type: String, required: true },
+  key_implementation_challenges: { type: String, required: true },
+  how_address_challenges: { type: String, required: true },
+  other_project_outcomes: { type: String, required: true },
+  how_important_insinger_support: { type: String, required: true },
+  apply_for_more_funding: { type: String, required: true },
+  other_comments: { type: String, required: true },
+  plans: { type: String, required: false },
 });
 
 ReportSchema.plugin(autoIncrement.plugin, {
@@ -84,6 +110,20 @@ module.exports.get = (callback: any, limit: any) => {
     .populate('project')
     .populate({
       path: 'policy_priorities',
+      populate: {
+        path: 'policy_priority',
+        model: 'policyPriority',
+      },
+    })
+    .populate({
+      path: 'sdgs',
+      populate: {
+        path: 'sdg',
+        model: 'sdg',
+      },
+    })
+    .populate({
+      path: 'pillar',
       select: 'name',
     })
     .populate({

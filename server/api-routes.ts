@@ -1,4 +1,7 @@
 const router = require('express').Router();
+const SDG = require('./models/sdg');
+const Pillar = require('./models/pillar');
+const PolicyPriority = require('./models/policyPriority');
 const orgController = require('./controllers/OrgController');
 const projectController = require('./controllers/ProjectController');
 const orgTypeController = require('./controllers/OrgTypeController');
@@ -35,6 +38,48 @@ router.route('/responsible_person').get(responsiblePersonController.allPerson);
 router
   .route('/responsible_person/:_id')
   .get(responsiblePersonController.onePeron);
+
+router.route('/sdgs').get((req: any, res: any) => {
+  SDG.get((err: any, sdgs: any) => {
+    if (err) {
+      res.json({
+        status: 'error',
+        message: err.message,
+      });
+    }
+    res.json({
+      data: sdgs,
+    });
+  });
+});
+
+router.route('/policy-priorities').get((req: any, res: any) => {
+  PolicyPriority.get((err: any, pp: any) => {
+    if (err) {
+      res.json({
+        status: 'error',
+        message: err.message,
+      });
+    }
+    res.json({
+      data: pp,
+    });
+  });
+});
+
+router.route('/pillars').get((req: any, res: any) => {
+  Pillar.get((err: any, pillars: any) => {
+    if (err) {
+      res.json({
+        status: 'error',
+        message: err.message,
+      });
+    }
+    res.json({
+      data: pillars,
+    });
+  });
+});
 
 router.route('/upload').post(uploadFiles);
 
