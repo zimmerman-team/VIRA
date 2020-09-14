@@ -120,13 +120,13 @@ function returnDataBasedOnSelection(
   breakdownBy: string
 ) {
   switch (breakdownBy) {
-    case 'none':
+    case 'None':
       res(JSON.stringify(getTargetGroupBarChartDataOverBudget(rawData)));
       break;
-    case 'people-reached':
+    case 'People Reached':
       res(JSON.stringify(getTargetGroupBarChartDataOverBudget(rawData)));
       break;
-    case 'sdg':
+    case 'SDGs':
       res(JSON.stringify(getTargetGroupBarChartDataOverSDG(rawData)));
       break;
     default:
