@@ -19,7 +19,8 @@ import {
 /* other */
 import consts from '../../config/consts';
 
-const reportselectQuery = 'budget pillar isDraft';
+const reportselectQuery =
+  'budget pillar isDraft total_target_beneficiaries total_target_beneficiaries_commited';
 
 function getFormattedPillarData(reportData: any) {
   return new Promise((resolve, reject) => {
@@ -30,10 +31,19 @@ function getFormattedPillarData(reportData: any) {
         const pillarReports = groupedByPillars[pillar];
         const spent = sumBy(pillarReports, 'budget');
         const budget = sumBy(pillarReports, 'project.total_amount');
+        const projectCount = uniqBy(pillarReports, 'project_number').length;
+        const targeted = sumBy(pillarReports, 'total_target_beneficiaries');
+        const reached = sumBy(
+          pillarReports,
+          'total_target_beneficiaries_commited'
+        );
         result.push({
           name: pillar,
-          budget: budget,
           spent: spent,
+          budget: budget,
+          reached: reached,
+          targeted: targeted,
+          count: projectCount,
         });
       }
     });
@@ -44,6 +54,9 @@ function getFormattedPillarData(reportData: any) {
             name: pillar.name,
             budget: 0,
             spent: 0,
+            count: 0,
+            reached: 0,
+            targeted: 0,
           });
         }
       });
@@ -124,6 +137,8 @@ function getFormattedPillarDataForDuration(reportData: any) {
     Object.keys(groupedByPillars).forEach((pillar: string) => {
       if (pillar !== undefined && pillar !== 'undefined') {
         const pillarReports = groupedByPillars[pillar];
+        const spent = sumBy(pillarReports, 'budget');
+        const budget = sumBy(pillarReports, 'project.total_amount');
         const oneYearProjects = uniqBy(
           filter(pillarReports, (pr: any) => !pr.project.multi_year).map(
             pr => pr.project
@@ -136,10 +151,21 @@ function getFormattedPillarDataForDuration(reportData: any) {
           ),
           'project_number'
         );
+        const projectCount = uniqBy(pillarReports, 'project_number').length;
+        const targeted = sumBy(pillarReports, 'total_target_beneficiaries');
+        const reached = sumBy(
+          pillarReports,
+          'total_target_beneficiaries_commited'
+        );
         result.push({
           name: pillar,
           oneYear: oneYearProjects.length,
           multiYear: multiYearProjects.length,
+          spent: spent,
+          budget: budget,
+          count: projectCount,
+          reached: reached,
+          targeted: targeted,
         });
       }
     });
@@ -150,6 +176,11 @@ function getFormattedPillarDataForDuration(reportData: any) {
             name: pillar.name,
             oneYear: 0,
             multiYear: 0,
+            count: 0,
+            reached: 0,
+            targeted: 0,
+            spent: 0,
+            budget: 0,
           });
         }
       });
