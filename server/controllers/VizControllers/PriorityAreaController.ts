@@ -314,21 +314,21 @@ function returnDataBasedOnSelection(
   breakdownBy: string
 ) {
   switch (breakdownBy) {
-    case 'none':
+    case 'None':
       res(JSON.stringify(getPriorityAreaBarChartDataOverBudget(rawData)));
       break;
-    case 'target-group':
+    case 'Target Group':
       res(JSON.stringify(getPriorityAreaBarChartDataOverTargetGroup(rawData)));
       break;
-    case 'one-multi-year':
+    case 'One Year & Multi Year':
       res(JSON.stringify(getPriorityAreaBarChartDataOverDuration(rawData)));
       break;
-    case 'people-reached':
+    case 'People Reached':
       res(
         JSON.stringify(getPriorityAreaBarChartDataOverPeopleReached(rawData))
       );
       break;
-    case 'sdg':
+    case 'SDGs':
       res(JSON.stringify(getPriorityAreaBarChartDataOverSDG(rawData)));
       break;
     default:
