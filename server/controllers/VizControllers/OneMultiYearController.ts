@@ -20,7 +20,7 @@ import { targetGroupColors } from '../../assets/mock/targetGroupColors';
 import { uniq } from 'lodash';
 
 const selectQuery =
-  'target_beneficiaries total_target_beneficiaries total_target_beneficiaries_commited budget isDraft';
+  'target_beneficiaries total_target_beneficiaries total_target_beneficiaries_commited budget isDraft project';
 
 function getOneMultiYearChartDataOverBudget(reportData: any, projects: any) {
   const filteredReports = filter(reportData, { isDraft: false });
