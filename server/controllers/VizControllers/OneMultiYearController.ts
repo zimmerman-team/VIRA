@@ -180,19 +180,19 @@ function returnDataBasedOnSelection(
   projects: any
 ) {
   switch (breakdownBy) {
-    case 'none':
+    case 'None':
       res(
         JSON.stringify(getOneMultiYearChartDataOverBudget(rawData, projects))
       );
       break;
-    case 'target-group':
+    case 'Target Group':
       res(
         JSON.stringify(
           getOneMultiYearChartDataOverTargetGroup(rawData, projects)
         )
       );
       break;
-    case 'people-reached':
+    case 'People Reached':
       res(
         JSON.stringify(
           getOneMultiYearChartDataOverPeopleReached(rawData, projects)
