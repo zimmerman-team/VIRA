@@ -72,14 +72,15 @@ export function getPillarDataByBudget(req: any, res: any) {
 
   if (projectID) {
     if (isArray(projectID)) {
-      query = { _id: { $in: projectID } };
+      query = { project: { $in: projectID } };
     } else {
-      query = { _id: projectID };
+      query = { project: projectID };
     }
 
     Report.find(query)
       .select(reportselectQuery)
       .populate('project')
+      .populate('pillar')
       .exec((err: any, reportData: any) => {
         getFormattedPillarData(reportData).then((result: any) => {
           res(JSON.stringify(result));
@@ -204,6 +205,7 @@ export function getPillarDataByDuration(req: any, res: any) {
     Report.find(query)
       .select(reportselectQuery)
       .populate('project')
+      .populate('pillar')
       .exec((err: any, reportData: any) => {
         getFormattedPillarDataForDuration(reportData).then((result: any) => {
           res(JSON.stringify(result));
