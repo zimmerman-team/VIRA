@@ -23,7 +23,7 @@ import { policyPriorities } from '../../assets/mock/policyPriorities';
 import { targetGroupColors } from '../../assets/mock/targetGroupColors';
 
 const selectQuery =
-  'policy_priorities sdgs target_beneficiaries total_target_beneficiaries total_target_beneficiaries_commited budget isDraft insContribution';
+  'policy_priorities sdgs target_beneficiaries total_target_beneficiaries total_target_beneficiaries_commited budget isDraft insContribution project';
 
 function getPriorityAreaBarChartDataOverBudget(reportData: any) {
   return getPolicyPriorityBarChartFormattedData(reportData).map(
@@ -337,15 +337,23 @@ function returnDataBasedOnSelection(
 }
 
 export function getPriorityAreaBarChartData(req: any, res: any) {
-  const { projectID, breakdownBy } = req.query;
+  const { projectID, reportID, breakdownBy } = req.query;
 
   let query = {};
 
-  if (projectID) {
-    if (isArray(projectID)) {
-      query = { project: { $in: projectID } };
-    } else {
-      query = { project: projectID };
+  if (projectID || reportID) {
+    if (projectID) {
+      if (isArray(projectID)) {
+        query = { project: { $in: projectID } };
+      } else {
+        query = { project: projectID };
+      }
+    } else if (reportID) {
+      if (isArray(reportID)) {
+        query = { _id: { $in: reportID } };
+      } else {
+        query = { _id: reportID };
+      }
     }
     Report.find(query)
       .select(selectQuery)

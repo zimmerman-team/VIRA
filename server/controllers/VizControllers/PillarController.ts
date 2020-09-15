@@ -66,15 +66,23 @@ function getFormattedPillarData(reportData: any) {
 }
 
 export function getPillarDataByBudget(req: any, res: any) {
-  const { projectID } = req.query;
+  const { projectID, reportID } = req.query;
 
   let query = {};
 
-  if (projectID) {
-    if (isArray(projectID)) {
-      query = { project: { $in: projectID } };
-    } else {
-      query = { project: projectID };
+  if (projectID || reportID) {
+    if (projectID) {
+      if (isArray(projectID)) {
+        query = { project: { $in: projectID } };
+      } else {
+        query = { project: projectID };
+      }
+    } else if (reportID) {
+      if (isArray(reportID)) {
+        query = { _id: { $in: reportID } };
+      } else {
+        query = { _id: reportID };
+      }
     }
 
     Report.find(query)
@@ -191,15 +199,23 @@ function getFormattedPillarDataForDuration(reportData: any) {
 }
 
 export function getPillarDataByDuration(req: any, res: any) {
-  const { projectID } = req.query;
+  const { projectID, reportID } = req.query;
 
   let query = {};
 
-  if (projectID) {
-    if (isArray(projectID)) {
-      query = { _id: { $in: projectID } };
-    } else {
-      query = { _id: projectID };
+  if (projectID || reportID) {
+    if (projectID) {
+      if (isArray(projectID)) {
+        query = { project: { $in: projectID } };
+      } else {
+        query = { project: projectID };
+      }
+    } else if (reportID) {
+      if (isArray(reportID)) {
+        query = { _id: { $in: reportID } };
+      } else {
+        query = { _id: reportID };
+      }
     }
 
     Report.find(query)

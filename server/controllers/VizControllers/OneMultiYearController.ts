@@ -206,28 +206,68 @@ function returnDataBasedOnSelection(
   }
 }
 
-function getOneMultiYearProjects() {
+function getOneMultiYearProjects(projectID: string, reportID: string) {
   return new Promise((resolve, reject) => {
-    Project.find({}).exec((err: any, projects: any) => {
-      resolve({
-        one: filter(projects, { multi_year: false }),
-        multi: filter(projects, { multi_year: true }),
+    let query = {};
+    if (projectID) {
+      if (isArray(projectID)) {
+        query = { _id: { $in: projectID } };
+      } else {
+        query = { _id: projectID };
+      }
+      Project.find(query).exec((err: any, projects: any) => {
+        resolve({
+          one: filter(projects, { multi_year: false }),
+          multi: filter(projects, { multi_year: true }),
+        });
       });
-    });
+    } else if (reportID) {
+      if (isArray(reportID)) {
+        query = { _id: { $in: reportID } };
+      } else {
+        query = { _id: reportID };
+      }
+      Report.find(query)
+        .populate('project')
+        .exec((err: any, reports: any) => {
+          if (reports) {
+            const projects = reports.map((report: any) => report.project);
+            resolve({
+              one: filter(projects, { multi_year: false }),
+              multi: filter(projects, { multi_year: true }),
+            });
+          }
+        });
+    } else {
+      Project.find({}).exec((err: any, projects: any) => {
+        resolve({
+          one: filter(projects, { multi_year: false }),
+          multi: filter(projects, { multi_year: true }),
+        });
+      });
+    }
   });
 }
 
 export function getOneMultiYearBarChartData(req: any, res: any) {
-  const { projectID, breakdownBy } = req.query;
+  const { projectID, reportID, breakdownBy } = req.query;
 
   let query = {};
 
-  getOneMultiYearProjects().then(projects => {
-    if (projectID) {
-      if (isArray(projectID)) {
-        query = { project: { $in: projectID } };
-      } else {
-        query = { project: projectID };
+  getOneMultiYearProjects(projectID, reportID).then(projects => {
+    if (projectID || reportID) {
+      if (projectID) {
+        if (isArray(projectID)) {
+          query = { project: { $in: projectID } };
+        } else {
+          query = { project: projectID };
+        }
+      } else if (reportID) {
+        if (isArray(reportID)) {
+          query = { _id: { $in: reportID } };
+        } else {
+          query = { _id: reportID };
+        }
       }
       Report.find(query)
         .select(selectQuery)

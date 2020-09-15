@@ -135,15 +135,23 @@ function returnDataBasedOnSelection(
 }
 
 export function getTargetGroupBarChartData(req: any, res: any) {
-  const { projectID, breakdownBy } = req.query;
+  const { projectID, reportID, breakdownBy } = req.query;
 
   let query = {};
 
-  if (projectID) {
-    if (isArray(projectID)) {
-      query = { project: { $in: projectID } };
-    } else {
-      query = { project: projectID };
+  if (projectID || reportID) {
+    if (projectID) {
+      if (isArray(projectID)) {
+        query = { project: { $in: projectID } };
+      } else {
+        query = { project: projectID };
+      }
+    } else if (reportID) {
+      if (isArray(reportID)) {
+        query = { _id: { $in: reportID } };
+      } else {
+        query = { _id: reportID };
+      }
     }
     Report.find(query)
       .select(selectQuery)
