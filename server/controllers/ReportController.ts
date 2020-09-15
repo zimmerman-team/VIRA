@@ -247,6 +247,9 @@ async function getPolicyPriorities(data: any) {
     const result: any = [];
     let count = 0;
     const totalCount = data.length;
+    if (totalCount === 0) {
+      resolve(result);
+    }
     data.forEach((item: any) => {
       policyPriority
         .findOne({ name: item.name })
@@ -305,6 +308,9 @@ async function getSDGs(data: any) {
     const result: any = [];
     let count = 0;
     const totalCount = data.length;
+    if (totalCount === 0) {
+      resolve(result);
+    }
     data.forEach((item: any) => {
       sdgModel.findOne({ code: item.code }).exec((err: any, sdg: any) => {
         if (err || !sdg) {
@@ -383,6 +389,9 @@ async function getFunders(data: any) {
     const result: any[] = [];
     const totalCount = data.length;
     let count = 0;
+    if (totalCount === 0) {
+      resolve(result);
+    }
     data.forEach((item: any) => {
       Funder.findOne({ name: item }).exec((err: any, funder: any) => {
         if (err || !funder) {
