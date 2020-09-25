@@ -496,8 +496,7 @@ export function addReport(req: any, res: any) {
                       data.projectgoals_socialbenefits;
                     report.important_factors = data.important_factors;
                     report.orgs_partners = data.orgs_partners;
-                    report.monitor_report_outcomes =
-                      data.monitor_report_outcomes;
+                    report.partners = data.partners;
                     report.media = data.media;
                     report.key_implementation_challenges =
                       data.key_implementation_challenges;
@@ -598,8 +597,7 @@ export function editReport(req: any, res: any) {
                           data.projectgoals_socialbenefits;
                         report.important_factors = data.important_factors;
                         report.orgs_partners = data.orgs_partners;
-                        report.monitor_report_outcomes =
-                          data.monitor_report_outcomes;
+                        report.partners = data.orgs_partners;
                         report.media = data.media;
                         report.key_implementation_challenges =
                           data.key_implementation_challenges;
