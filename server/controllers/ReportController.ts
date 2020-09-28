@@ -210,10 +210,14 @@ export function getReport(req: any, res: any) {
           mapMarkers: report.location
             ? [
                 {
+                  country: report.country,
                   name: report.place_name || report.country,
                   longitude: report.location.long,
                   latitude: report.location.lat,
                   value: report.budget,
+                  contribution: report.insContribution,
+                  reached: report.total_target_beneficiaries_commited,
+                  target: report.total_target_beneficiaries,
                 },
               ]
             : [],

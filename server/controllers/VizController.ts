@@ -17,7 +17,8 @@ import {
 const selectQuery =
   'policy_priorities sdgs total_target_beneficiaries total_target_beneficiaries_commited budget isDraft insContribution';
 
-const mapSelectQuery = 'location budget place_name country isDraft';
+const mapSelectQuery =
+  'location budget place_name country isDraft insContribution total_target_beneficiaries total_target_beneficiaries_commited';
 
 export function getPolicyPriorityBarChart(req: any, res: any) {
   const { projectID } = req.query;

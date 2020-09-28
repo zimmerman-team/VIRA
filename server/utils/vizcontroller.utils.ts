@@ -152,9 +152,13 @@ export function getGeoMapFormattedData(rawData: any) {
   const data = filter(rawData, { isDraft: false });
   const mapMarkers = data.map((item: any) => ({
     name: item.place_name || item.country,
-    longitude: get(item, 'location.long', 0),
-    latitude: get(item, 'location.lat', 0),
+    country: item.country,
+    longitude: get(item, 'location.long', null),
+    latitude: get(item, 'location.lat', null),
     value: item.budget,
+    contribution: item.insContribution,
+    reached: item.total_target_beneficiaries_commited,
+    target: item.total_target_beneficiaries,
   }));
   const countryFeatures = {
     ...countryFeaturesData,
