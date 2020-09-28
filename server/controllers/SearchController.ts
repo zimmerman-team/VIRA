@@ -36,7 +36,6 @@ export function generalSearchSocketAPI(req: any, res: any) {
         { title: { $regex: q, $options: '-i' } },
         { country: { $regex: q, $options: '-i' } },
         { key_outcomes: { $regex: q, $options: '-i' } },
-        { monitor_report_outcomes: { $regex: q, $options: '-i' } },
         {
           key_implementation_challenges: {
             $regex: q,
