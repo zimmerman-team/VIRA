@@ -262,7 +262,7 @@ export function getProjectBudgetData(req: any, res: any) {
         res(JSON.stringify({ status: 'error', message: err.message }));
       }
       if (project) {
-        Report.find({ project: project })
+        Report.find({ project: project, isDraft: false })
           .select('budget')
           .populate({
             path: 'policy_priorities',

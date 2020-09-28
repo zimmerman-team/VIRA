@@ -25,7 +25,8 @@ const reportselectQuery =
 function getFormattedPillarData(reportData: any) {
   return new Promise((resolve, reject) => {
     const result: any[] = [];
-    const groupedByPillars = groupBy(reportData, 'pillar.name');
+    const filteredReportData = filter(reportData, { isDraft: false });
+    const groupedByPillars = groupBy(filteredReportData, 'pillar.name');
     Object.keys(groupedByPillars).forEach((pillar: string) => {
       if (pillar !== undefined && pillar !== 'undefined') {
         const pillarReports = groupedByPillars[pillar];
