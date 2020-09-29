@@ -288,7 +288,7 @@ export function getProjectBudgetData(req: any, res: any) {
                 JSON.stringify({
                   status: 'success',
                   data: {
-                    reportId: reports[0]._id,
+                    reportId: get(reports, '[0]._id', null),
                     totBudget: project.total_amount,
                     remainBudget: project.total_amount - totUsedBudget,
                     person_email: project.person.email,
