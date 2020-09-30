@@ -32,7 +32,8 @@ function getFormattedPillarData(reportData: any) {
         const pillarReports = groupedByPillars[pillar];
         const spent = sumBy(pillarReports, 'budget');
         const budget = sumBy(pillarReports, 'project.total_amount');
-        const projectCount = uniqBy(pillarReports, 'project_number').length;
+        const projectCount = uniqBy(pillarReports, 'project.project_number')
+          .length;
         const targeted = sumBy(pillarReports, 'total_target_beneficiaries');
         const reached = sumBy(
           pillarReports,
@@ -161,7 +162,8 @@ function getFormattedPillarDataForDuration(reportData: any) {
           ),
           'project_number'
         );
-        const projectCount = uniqBy(pillarReports, 'project_number').length;
+        const projectCount = uniqBy(pillarReports, 'project.project_number')
+          .length;
         const targeted = sumBy(pillarReports, 'total_target_beneficiaries');
         const reached = sumBy(
           pillarReports,
