@@ -29,6 +29,6 @@ export const policyPriorities: { label: string; value: string }[] = [
   },
   {
     label: 'charts.items.heritage',
-    value: 'Cultural Heritage',
+    value: 'Cultural heritage',
   },
 ];
