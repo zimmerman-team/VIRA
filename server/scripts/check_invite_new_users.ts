@@ -116,7 +116,7 @@ function inviteGranteeNewUsers(
                     app_metadata: {
                       authorization: {
                         groups: [org.name],
-                        roles: ['Grantee user'],
+                        roles: ['Manager'],
                       },
                     },
                   },
@@ -395,7 +395,7 @@ function getAllAuth0Roles(token: string) {
       .then(response => {
         const data = filter(
           response.data.roles,
-          r => r.description === 'M&E Insinger' && r.name === 'Grantee user'
+          r => r.description === 'M&E Insinger' && r.name === 'Manager'
         ).map(g => {
           return {
             ...g,
