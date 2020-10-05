@@ -20,7 +20,7 @@ import { targetGroupColors } from '../../assets/mock/targetGroupColors';
 import { uniq } from 'lodash';
 
 const selectQuery =
-  'target_beneficiaries total_target_beneficiaries total_target_beneficiaries_commited budget isDraft project';
+  'target_beneficiaries total_target_beneficiaries total_target_beneficiaries_commited budget isDraft project insContribution';
 
 function getOneMultiYearChartDataOverBudget(reportData: any, projects: any) {
   const filteredReports = filter(reportData, { isDraft: false });
@@ -38,12 +38,14 @@ function getOneMultiYearChartDataOverBudget(reportData: any, projects: any) {
       count: projects.one.length,
       budget_Spent: sumBy(oneYearReports, 'budget'),
       budget_Total: sumBy(projects.one, 'total_amount'),
+      contribution: sumBy(oneYearReports, 'insContribution'),
     },
     {
       name: 'Multi year',
       count: projects.multi.length,
       budget_Spent: sumBy(multiYearReports, 'budget'),
       budget_Total: sumBy(projects.multi, 'total_amount'),
+      contribution: sumBy(multiYearReports, 'insContribution'),
     },
   ];
   return result;
@@ -74,13 +76,13 @@ function getOneMultiYearChartDataOverTargetGroup(
           const weight = (tg.value / report.total_target_beneficiaries) * 100;
           oneYearTargetGroups.push({
             name: tg.name,
-            value: (report.budget * weight) / 100,
+            value: (report.insContribution * weight) / 100,
             projectNumbers: [report.project.project_number],
             color: get(targetGroupColors, `[${tg.name}]`, '#fff'),
           });
         } else {
           oneYearTargetGroups[fTargetGroupIndex].value +=
-            (report.budget * weight) / 100;
+            (report.insContribution * weight) / 100;
           oneYearTargetGroups[fTargetGroupIndex].projectNumbers.push(
             report.project.project_number
           );
@@ -100,13 +102,13 @@ function getOneMultiYearChartDataOverTargetGroup(
           const weight = (tg.value / report.total_target_beneficiaries) * 100;
           multiYearTargetGroups.push({
             name: tg.name,
-            value: (report.budget * weight) / 100,
+            value: (report.insContribution * weight) / 100,
             projectNumbers: [report.project.project_number],
             color: get(targetGroupColors, `[${tg.name}]`, '#fff'),
           });
         } else {
           multiYearTargetGroups[fTargetGroupIndex].value +=
-            (report.budget * weight) / 100;
+            (report.insContribution * weight) / 100;
           multiYearTargetGroups[fTargetGroupIndex].projectNumbers.push(
             report.project.project_number
           );
@@ -120,6 +122,7 @@ function getOneMultiYearChartDataOverTargetGroup(
       count: projects.one.length,
       budget_Spent: sumBy(oneYearReports, 'budget'),
       budget_Total: sumBy(projects.one, 'total_amount'),
+      contribution: sumBy(oneYearReports, 'insContribution'),
       children: oneYearTargetGroups.map((tg: any) => ({
         ...tg,
         count: uniq(tg.projectNumbers).length,
@@ -130,6 +133,7 @@ function getOneMultiYearChartDataOverTargetGroup(
       count: projects.multi.length,
       budget_Spent: sumBy(multiYearReports, 'budget'),
       budget_Total: sumBy(projects.multi, 'total_amount'),
+      contribution: sumBy(multiYearReports, 'insContribution'),
       children: multiYearTargetGroups.map((tg: any) => ({
         ...tg,
         count: uniq(tg.projectNumbers).length,
@@ -158,6 +162,7 @@ function getOneMultiYearChartDataOverPeopleReached(
       count: projects.one.length,
       budget_Spent: sumBy(oneYearReports, 'budget'),
       budget_Total: sumBy(projects.one, 'total_amount'),
+      contribution: sumBy(oneYearReports, 'insContribution'),
       targeted: sumBy(oneYearReports, 'total_target_beneficiaries'),
       reached: sumBy(oneYearReports, 'total_target_beneficiaries_commited'),
     },
@@ -166,6 +171,7 @@ function getOneMultiYearChartDataOverPeopleReached(
       count: projects.multi.length,
       budget_Spent: sumBy(multiYearReports, 'budget'),
       budget_Total: sumBy(projects.multi, 'total_amount'),
+      contribution: sumBy(multiYearReports, 'insContribution'),
       targeted: sumBy(multiYearReports, 'total_target_beneficiaries'),
       reached: sumBy(multiYearReports, 'total_target_beneficiaries_commited'),
     },

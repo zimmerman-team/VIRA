@@ -20,7 +20,7 @@ import {
 import consts from '../../config/consts';
 
 const reportselectQuery =
-  'budget pillar isDraft total_target_beneficiaries total_target_beneficiaries_commited';
+  'budget pillar isDraft total_target_beneficiaries total_target_beneficiaries_commited insContribution';
 
 function getFormattedPillarData(reportData: any) {
   return new Promise((resolve, reject) => {
@@ -32,6 +32,7 @@ function getFormattedPillarData(reportData: any) {
         const pillarReports = groupedByPillars[pillar];
         const spent = sumBy(pillarReports, 'budget');
         const budget = sumBy(pillarReports, 'project.total_amount');
+        const contribution = sumBy(pillarReports, 'insContribution');
         const projectCount = uniqBy(pillarReports, 'project.project_number')
           .length;
         const targeted = sumBy(pillarReports, 'total_target_beneficiaries');
@@ -46,6 +47,7 @@ function getFormattedPillarData(reportData: any) {
           reached: reached,
           targeted: targeted,
           count: projectCount,
+          contribution: contribution,
         });
       }
     });
@@ -59,6 +61,7 @@ function getFormattedPillarData(reportData: any) {
             count: 0,
             reached: 0,
             targeted: 0,
+            contribution: 0,
           });
         }
       });
@@ -150,6 +153,7 @@ function getFormattedPillarDataForDuration(reportData: any) {
         const pillarReports = groupedByPillars[pillar];
         const spent = sumBy(pillarReports, 'budget');
         const budget = sumBy(pillarReports, 'project.total_amount');
+        const contribution = sumBy(pillarReports, 'insContribution');
         const oneYearProjects = uniqBy(
           filter(pillarReports, (pr: any) => !pr.project.multi_year).map(
             pr => pr.project
@@ -178,6 +182,7 @@ function getFormattedPillarDataForDuration(reportData: any) {
           count: projectCount,
           reached: reached,
           targeted: targeted,
+          contribution: contribution,
         });
       }
     });
@@ -193,6 +198,7 @@ function getFormattedPillarDataForDuration(reportData: any) {
             targeted: 0,
             spent: 0,
             budget: 0,
+            contribution: 0,
           });
         }
       });
