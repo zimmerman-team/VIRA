@@ -18,7 +18,7 @@ const selectQuery =
   'policy_priorities sdgs total_target_beneficiaries total_target_beneficiaries_commited budget isDraft insContribution';
 
 const mapSelectQuery =
-  'location budget place_name country isDraft insContribution total_target_beneficiaries total_target_beneficiaries_commited';
+  'location project budget place_name country isDraft insContribution total_target_beneficiaries total_target_beneficiaries_commited';
 
 export function getPolicyPriorityBarChart(req: any, res: any) {
   const { projectID } = req.query;
@@ -172,6 +172,13 @@ export function getGeoMapData(req: any, res: any) {
     Report.find(query)
       .select(mapSelectQuery)
       .populate('location')
+      .populate({
+        path: 'project',
+        populate: {
+          path: 'organisation',
+          model: 'organisation',
+        },
+      })
       .exec((err: any, rawData: any) => {
         res(JSON.stringify(getGeoMapFormattedData(rawData)));
       });
@@ -187,6 +194,13 @@ export function getGeoMapData(req: any, res: any) {
             Report.find({ project: { $in: projects }, location: { $ne: null } })
               .select(mapSelectQuery)
               .populate('location')
+              .populate({
+                path: 'project',
+                populate: {
+                  path: 'organisation',
+                  model: 'organisation',
+                },
+              })
               .exec((err2: any, rawData: any) => {
                 res(JSON.stringify(getGeoMapFormattedData(rawData)));
               });
@@ -214,6 +228,13 @@ export function getGeoMapData(req: any, res: any) {
                   })
                     .select(mapSelectQuery)
                     .populate('location')
+                    .populate({
+                      path: 'project',
+                      populate: {
+                        path: 'organisation',
+                        model: 'organisation',
+                      },
+                    })
                     .exec((err3: any, rawData: any) => {
                       res(JSON.stringify(getGeoMapFormattedData(rawData)));
                     });
@@ -233,6 +254,13 @@ export function getGeoMapData(req: any, res: any) {
       Report.find(query)
         .select(mapSelectQuery)
         .populate('location')
+        .populate({
+          path: 'project',
+          populate: {
+            path: 'organisation',
+            model: 'organisation',
+          },
+        })
         .exec((err: any, rawData: any) => {
           res(JSON.stringify(getGeoMapFormattedData(rawData)));
         });

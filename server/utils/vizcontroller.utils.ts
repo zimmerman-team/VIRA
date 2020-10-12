@@ -159,6 +159,8 @@ export function getGeoMapFormattedData(rawData: any) {
     contribution: item.insContribution,
     reached: item.total_target_beneficiaries_commited,
     target: item.total_target_beneficiaries,
+    project: item.project.project_name,
+    org: item.project.organisation.organisation_name,
   }));
   const countryFeatures = {
     ...countryFeaturesData,
