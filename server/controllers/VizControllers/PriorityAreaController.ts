@@ -150,6 +150,8 @@ function getPriorityAreaBarChartDataOverDuration(reportData: any) {
       contribution_One: sumBy(oneYearInstances, 'contribution'),
       reached_One: sumBy(oneYearInstances, 'reached'),
       target_One: sumBy(oneYearInstances, 'target'),
+      count_One: oneYearInstances.length,
+      count_Multi: multiYearInstances.length,
     });
   });
   if (result) {
@@ -169,6 +171,8 @@ function getPriorityAreaBarChartDataOverDuration(reportData: any) {
           contribution_One: 0,
           reached_One: 0,
           target_One: 0,
+          count_One: 0,
+          count_Multi: 0,
         });
       } else {
         result[foundPriorityIndex].name = priority.label;
