@@ -1,6 +1,8 @@
 /* models */
 const Report = require('../../models/report');
 const Project = require('../../models/project');
+const Organisation = require('../../models/Org');
+const ResponsiblePerson = require('../../models/responsiblePerson');
 
 /* utils */
 import get from 'lodash/get';
@@ -212,8 +214,13 @@ function returnDataBasedOnSelection(
   }
 }
 
-function getOneMultiYearProjects(projectID: string, reportID: string) {
+function getOneMultiYearProjects(
+  projectID: string,
+  reportID: string,
+  req: any
+) {
   return new Promise((resolve, reject) => {
+    const { startDate, endDate } = req.query;
     let query = {};
     if (projectID) {
       if (isArray(projectID)) {
@@ -245,6 +252,72 @@ function getOneMultiYearProjects(projectID: string, reportID: string) {
           }
         });
     } else {
+      if (
+        get(req.query, 'userRole', '').toLowerCase() ===
+        consts.roles.regular.toLowerCase()
+      ) {
+        ResponsiblePerson.findOne(
+          { email: req.query.userEmail },
+          (err: any, person: any) => {
+            if (startDate && endDate) {
+              query = {
+                decision_date_unix: { $gte: startDate, $lt: endDate },
+                person: person,
+              };
+            } else {
+              query = { person: person };
+            }
+            Project.find(query, (err2: any, projects: any) => {
+              resolve({
+                one: filter(projects, { multi_year: false }),
+                multi: filter(projects, { multi_year: true }),
+              });
+            });
+          }
+        );
+      } else if (
+        get(req.query, 'userRole', '').toLowerCase() ===
+          consts.roles.admin.toLowerCase() ||
+        get(req.query, 'userRole', '').toLowerCase() ===
+          consts.roles.mod.toLowerCase()
+      ) {
+        ResponsiblePerson.find(
+          { email: req.query.userEmail },
+          (err: any, persons: any) => {
+            Organisation.find(
+              { _id: { $in: persons.map((p: any) => p.organisation) } },
+              (err2: any, orgs: any) => {
+                if (startDate && endDate) {
+                  query = {
+                    decision_date_unix: { $gte: startDate, $lt: endDate },
+                    organisation: { $in: orgs.map((org: any) => org) },
+                  };
+                } else {
+                  query = {
+                    organisation: { $in: orgs.map((org: any) => org) },
+                  };
+                }
+                Project.find(query, (err3: any, projects: any) => {
+                  resolve({
+                    one: filter(projects, { multi_year: false }),
+                    multi: filter(projects, { multi_year: true }),
+                  });
+                });
+              }
+            );
+          }
+        );
+      } else {
+        if (startDate && endDate) {
+          query = { decision_date_unix: { $gte: startDate, $lt: endDate } };
+        }
+        Project.find(query, (err: any, projects: any) => {
+          resolve({
+            one: filter(projects, { multi_year: false }),
+            multi: filter(projects, { multi_year: true }),
+          });
+        });
+      }
       Project.find({}).exec((err: any, projects: any) => {
         resolve({
           one: filter(projects, { multi_year: false }),
@@ -256,11 +329,18 @@ function getOneMultiYearProjects(projectID: string, reportID: string) {
 }
 
 export function getOneMultiYearBarChartData(req: any, res: any) {
-  const { projectID, reportID, breakdownBy } = req.query;
+  const {
+    projectID,
+    reportID,
+    breakdownBy,
+    userEmail,
+    startDate,
+    endDate,
+  } = req.query;
 
   let query = {};
 
-  getOneMultiYearProjects(projectID, reportID).then(projects => {
+  getOneMultiYearProjects(projectID, reportID, req).then(projects => {
     if (projectID || reportID) {
       if (projectID) {
         if (isArray(projectID)) {
