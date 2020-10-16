@@ -318,12 +318,6 @@ function getOneMultiYearProjects(
           });
         });
       }
-      Project.find({}).exec((err: any, projects: any) => {
-        resolve({
-          one: filter(projects, { multi_year: false }),
-          multi: filter(projects, { multi_year: true }),
-        });
-      });
     }
   });
 }
