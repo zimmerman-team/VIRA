@@ -2,9 +2,9 @@
 
 [![CircleCI](https://circleci.com/gh/zimmerman-team/VIRA.svg?style=svg&circle-token=f1c9c39b17f9c53166ffa2440e707cd75aaab5d5)](https://circleci.com/gh/zimmerman-team/VIRA)
 
-## What is the Insinger Monitoring & Evaluation Tool?
+## What VIRA?
 
-This tool allows you to easily generate reports on the basis of projects that have been co-funded by the Insinger Foundation. After logging in, access is granted to project information and progress can be reported. These reports allow the Insinger Foundation to monitor the effectiveness of contributions more effectively. The project is split into a front and back-end repository for sake of clear development.
+This tool allows you to easily generate reports on the basis of projects that have been co-funded by your foundation. After signing in, access is granted to project information and the progress can be reported. These reports allow your foundation to monitor the effectiveness of contributions more effectively.
 
 ## About the project
 
