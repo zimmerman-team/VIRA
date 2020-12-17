@@ -9,7 +9,7 @@ This tool allows you to easily generate reports on the basis of projects that ha
 ## About the project
 
 - Website: Private
-- Authors: <a href="https://www.zimmerman.team" target="_blank">Zimmerman</a>
+- Authors: <a href="https://www.zimmerman.team/" target="_blank">Zimmerman</a> and <a href="https://www.oamconsult.com/ target="\_blank">OAM Consult</a>
 - License: AGPLv3
 - Github Backend Repo: <a href="https://github.com/zimmerman-team/VIRA" target="_blank">github.com/zimmerman-team/VIRA</a>
 - Github Frontend Repo: <a href="https://github.com/zimmerman-team/VIRA.frontend" target="_blank">github.com/zimmerman-team/VIRA.frontend</a>
