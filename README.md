@@ -2,14 +2,14 @@
 
 [![CircleCI](https://circleci.com/gh/zimmerman-team/VIRA.svg?style=svg&circle-token=f1c9c39b17f9c53166ffa2440e707cd75aaab5d5)](https://circleci.com/gh/zimmerman-team/VIRA)
 
-## What is VIRA?
+## What VIRA?
 
-This tool allows you to easily generate reports on the basis of projects that have been co-funded by your foundation. After signing in, acces is granted to project information and tge progress can be reported. These reports allow your foundation to monitor the effectiveness of contributions more effectively.
+This tool allows you to easily generate reports on the basis of projects that have been co-funded by your foundation. After signing in, access is granted to project information and the progress can be reported. These reports allow your foundation to monitor the effectiveness of contributions more effectively.
 
 ## About the project
 
 - Website: Private
-- Authors: <a href="https://www.zimmerman.team/" target="_blank">Zimmerman</a> and <a href="https://www.oamconsult.com/ target="_blank">OAM Consult</a>
+- Authors: <a href="https://www.zimmerman.team/" target="_blank">Zimmerman</a> and <a href="https://www.oamconsult.com/ target="\_blank">OAM Consult</a>
 - License: AGPLv3
 - Github Backend Repo: <a href="https://github.com/zimmerman-team/VIRA" target="_blank">github.com/zimmerman-team/VIRA</a>
 - Github Frontend Repo: <a href="https://github.com/zimmerman-team/VIRA.frontend" target="_blank">github.com/zimmerman-team/VIRA.frontend</a>
