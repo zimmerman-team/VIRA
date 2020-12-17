@@ -1,8 +1,18 @@
-# INSINGER API
+# VIRA
 
-[![CircleCI](https://circleci.com/gh/zimmerman-zimmerman/insinger-backend.svg?style=svg&circle-token=f1c9c39b17f9c53166ffa2440e707cd75aaab5d5)](https://circleci.com/gh/zimmerman-zimmerman/insinger-backend) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=zimmerman-zimmerman_insinger-backend&metric=alert_status&token=99b3db8b4dc828a31bbdb862e3d2f9ce94c9923c)](https://sonarcloud.io/dashboard?id=zimmerman-zimmerman_insinger-backend)
+[![CircleCI](https://circleci.com/gh/zimmerman-team/VIRA.svg?style=svg&circle-token=f1c9c39b17f9c53166ffa2440e707cd75aaab5d5)](https://circleci.com/gh/zimmerman-team/VIRA)
 
-An API/back-end service that processes Insinger data file for a project/report management tool.
+## What is the Insinger Monitoring & Evaluation Tool?
+
+This tool allows you to easily generate reports on the basis of projects that have been co-funded by the Insinger Foundation. After logging in, access is granted to project information and progress can be reported. These reports allow the Insinger Foundation to monitor the effectiveness of contributions more effectively. The project is split into a front and back-end repository for sake of clear development.
+
+## About the project
+
+- Website: Private
+- Authors: <a href="https://www.zimmerman.team" target="_blank">Zimmerman</a>
+- License: AGPLv3
+- Github Backend Repo: <a href="https://github.com/zimmerman-team/VIRA" target="_blank">github.com/zimmerman-team/VIRA</a>
+- Github Frontend Repo: <a href="https://github.com/zimmerman-team/VIRA.frontend" target="_blank">github.com/zimmerman-team/VIRA.frontend</a>
 
 ---
 
@@ -58,8 +68,8 @@ Just make sure that you install version 4.x.x of MongoDB
 
 ## Install
 
-    $ git clone https://github.com/zimmerman-zimmerman/insinger-backend.git
-    $ cd insinger-backend
+    $ git clone https://github.com/zimmerman-team/VIRA.git
+    $ cd VIRA
     $ yarn install
 
 ## Configure app
@@ -67,16 +77,20 @@ Just make sure that you install version 4.x.x of MongoDB
 Create an `.env` file in the root directory and add the following:
 
 ```
-REACT_APP_AE_API_CLIENT_ID=<REACT_APP_AE_API_CLIENT_ID>
-REACT_APP_AUTH_DOMAIN=<REACT_APP_AUTH_DOMAIN>
-REACT_APP_AE_API_CLIENT_SECRET=<REACT_APP_AE_API_CLIENT_SECRET>
-REACT_APP_AE_API_URL=<REACT_APP_AE_API_URL>
-REACT_APP_POSTMARK_CLIENT_ID=<REACT_APP_POSTMARK_CLIENT_ID>
+REACT_APP_AE_API_CLIENT_ID=<Auth0 Authentication Extension API client id>
+REACT_APP_AUTH_DOMAIN=<Auth0 tenant custom domain>
+REACT_APP_AE_API_CLIENT_SECRET=<Auth0 Authentication Extension API client secret>
+REACT_APP_AE_API_URL=<Auth0 Authentication Extension API URL>
+
+REACT_APP_POSTMARK_CLIENT_ID=<Postmark client id>
+REACT_APP_POSTMARK_TEMPLATE_WELCOME=<Postmark welcome email template id>
+REACT_APP_POSTMARK_TEMPLATE_RESET=<Postmark reset password template id>
+REACT_APP_POSTMARK_TEMPLATE_NOTIFICATION=<Postmark project notification email template id>
 
 REACT_APP_PROJECT_URL=<http://localhost:3000 for running locally | https://something.com for deployed runs>
 REACT_APP_BACKEND_PORT=4200
 REACT_APP_BACKEND_URL=http://localhost:4200
-REACT_APP_MONGO_DB_URL=mongodb://localhost:27017/insinger
+REACT_APP_MONGO_DB_URL=mongodb://localhost:27017/vira
 REACT_APP_DATA_FILE=<name of the data file in server/scripts, must be a csv file>
 ```
 
