@@ -98,10 +98,16 @@ function inviteGranteeNewUsers(
                     email_verified: false,
                     verify_email: true,
                     password: `@${makePass(8)}`,
-                    given_name: person.title,
+                    given_name:
+                      person.title.length > 0
+                        ? person.title
+                        : person.family_name,
                     family_name: person.family_name,
                     name: `${person.title} ${person.family_name}`,
-                    nickname: person.title,
+                    nickname:
+                      person.title.length > 0
+                        ? person.title
+                        : person.family_name,
                     connection: 'insinger-database-connection',
                     user_metadata: {
                       firstName: person.title,
@@ -110,7 +116,7 @@ function inviteGranteeNewUsers(
                     app_metadata: {
                       authorization: {
                         groups: [org.name],
-                        roles: ['Grantee user'],
+                        roles: ['Manager'],
                       },
                     },
                   },
@@ -389,7 +395,7 @@ function getAllAuth0Roles(token: string) {
       .then(response => {
         const data = filter(
           response.data.roles,
-          r => r.description === 'M&E Insinger' && r.name === 'Grantee user'
+          r => r.description === 'M&E Insinger' && r.name === 'Manager'
         ).map(g => {
           return {
             ...g,
@@ -452,7 +458,12 @@ function start() {
         .then((response2: any) => {
           getAllAuth0Users()
             .then((response3: any) => {
-              traverseGrantees({ ...response, ...response3, roleId: response2 })
+              traverseGrantees({
+                ...response,
+                groups: response.data,
+                ...response3,
+                roleId: response2,
+              })
                 .then(() => {
                   console.log('--------------------------------');
                   console.log('successfully exit'.success.white);

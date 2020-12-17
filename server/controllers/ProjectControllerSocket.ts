@@ -7,9 +7,15 @@ const Project = require('../models/project');
 const Organisation = require('../models/Org');
 const ProjectCat = require('../models/project_categroy');
 const ResponsiblePerson = require('../models/responsiblePerson');
+import {
+  getProjectsFormattedData,
+  getSingleProjectFormattedData,
+} from '../utils/projectcontroller.utils';
 
 // get all projects
 export function allProject(req: any, res: any) {
+  const { startDate, endDate } = req.query;
+  let query = {};
   if (!req.query.project_number) {
     if (
       get(req.query, 'userRole', '').toLowerCase() ===
@@ -18,30 +24,21 @@ export function allProject(req: any, res: any) {
       ResponsiblePerson.findOne(
         { email: req.query.userEmail },
         (err: any, person: any) => {
-          Project.find({ person: person }, (err: any, projects: any) => {
-            Project.populate(
+          if (startDate && endDate) {
+            query = {
+              decision_date_unix: { $gte: startDate, $lt: endDate },
+              person: person,
+            };
+          } else {
+            query = { person: person };
+          }
+          Project.find(query, (err2: any, projects: any) => {
+            getProjectsFormattedData(
               projects,
-              {
-                path: 'organisation',
-                select: 'organisation_name', //org name and category name
-                match: req.query.organisation_name
-                  ? {
-                      organisation_name: {
-                        $in: req.query.organisation_name.split(','),
-                      },
-                    }
-                  : {},
-              },
-              (err: any, data: any) => {
-                res(
-                  JSON.stringify({
-                    data: data.filter((projects: any) => {
-                      return projects.organisation != null;
-                    }),
-                  })
-                );
-              }
-            );
+              req.query.organisation_name
+            ).then((result: any) => {
+              res(JSON.stringify(result));
+            });
           });
         }
       );
@@ -56,66 +53,38 @@ export function allProject(req: any, res: any) {
         (err: any, persons: any) => {
           Organisation.find(
             { _id: { $in: persons.map((p: any) => p.organisation) } },
-            (err: any, orgs: any) => {
-              Project.find(
-                { organisation: { $in: orgs.map((org: any) => org) } },
-                (err: any, projects: any) => {
-                  Project.populate(
-                    projects,
-                    {
-                      path: 'organisation',
-                      select: 'organisation_name', //org name and category name
-                      match: req.query.organisation_name
-                        ? {
-                            organisation_name: {
-                              $in: req.query.organisation_name.split(','),
-                            },
-                          }
-                        : {},
-                    },
-                    (err: any, data: any) => {
-                      res(
-                        JSON.stringify({
-                          data: data.filter((projects: any) => {
-                            return projects.organisation != null;
-                          }),
-                        })
-                      );
-                    }
-                  );
-                }
-              );
+            (err2: any, orgs: any) => {
+              if (startDate && endDate) {
+                query = {
+                  decision_date_unix: { $gte: startDate, $lt: endDate },
+                  organisation: { $in: orgs.map((org: any) => org) },
+                };
+              } else {
+                query = { organisation: { $in: orgs.map((org: any) => org) } };
+              }
+              Project.find(query, (err3: any, projects: any) => {
+                getProjectsFormattedData(
+                  projects,
+                  req.query.organisation_name
+                ).then((result: any) => {
+                  res(JSON.stringify(result));
+                });
+              });
             }
           );
         }
       );
     } else {
-      Project.get((err: any, project: any) => {
+      if (startDate && endDate) {
+        query = { decision_date_unix: { $gte: startDate, $lt: endDate } };
+      }
+      Project.find(query, (err: any, projects: any) => {
         if (err) {
           res(JSON.stringify({ status: 'error', message: err.message }));
         }
-
-        Project.populate(
-          project,
-          {
-            path: 'organisation',
-            select: 'organisation_name', //org name and category name
-            match: req.query.organisation_name
-              ? {
-                  organisation_name: {
-                    $in: req.query.organisation_name.split(','),
-                  },
-                }
-              : {},
-          },
-          (err: any, data: any) => {
-            res(
-              JSON.stringify({
-                data: data.filter((projects: any) => {
-                  return projects.organisation != null;
-                }),
-              })
-            );
+        getProjectsFormattedData(projects, req.query.organisation_name).then(
+          (result: any) => {
+            res(JSON.stringify(result));
           }
         );
       });
@@ -124,52 +93,12 @@ export function allProject(req: any, res: any) {
     Project.find(
       { project_number: req.query.project_number.split(',') },
       (err: any, projects: any) => {
-        Project.populate(
-          //first populate for organisation.
+        getSingleProjectFormattedData(
           projects,
-          {
-            path: 'organisation ',
-            select: 'organisation_name ', //org name
-            match: req.query.organisation_name
-              ? {
-                  organisation_name: {
-                    $in: req.query.organisation_name.split(','),
-                  },
-                }
-              : {},
-          },
-          (err: any, projects: any) => {
-            //callback from first populate()
-            Project.populate(
-              // second populate for category
-              projects,
-              {
-                path: 'category',
-                select: 'name',
-              },
-              (err: any, projects2: any) => {
-                Project.populate(
-                  // third populate for category
-                  projects2,
-                  {
-                    path: 'person',
-                    select: 'email',
-                  },
-                  (err: any, data: any) => {
-                    //callback from third populate()
-                    res(
-                      JSON.stringify({
-                        data: data.filter((projects: any) => {
-                          return projects.organisation != null;
-                        }),
-                      })
-                    );
-                  }
-                );
-              }
-            );
-          }
-        );
+          req.query.organisation_name
+        ).then((result: any) => {
+          res(JSON.stringify(result));
+        });
       }
     );
   }
@@ -198,7 +127,7 @@ async function getProjectCategory(name: string) {
           new ProjectCat({
             name: name,
             description: name,
-          }).save((err: any, newCategory: any) => {
+          }).save((err2: any, newCategory: any) => {
             resolve(newCategory);
           });
         } else {
@@ -227,7 +156,7 @@ async function getOrganisation(id: string) {
 export function addProject(req: any, res: any) {
   getProjectCategory(req.query.category).then(category => {
     getOrganisation(req.query.orgId).then(organisation => {
-      let project = new Project();
+      const project = new Project();
       project.project_number = req.query.project_number;
       project.project_name = req.query.project_name;
       project.project_description = req.query.project_description;
@@ -242,14 +171,14 @@ export function addProject(req: any, res: any) {
       project.paid_amount = req.query.paid_amount;
       project.category = category;
       project.organisation = organisation;
-      project.save((err: any, project: any) => {
+      project.save((err: any, sproject: any) => {
         if (err) {
           res(JSON.stringify({ status: 'error', message: err.message }));
         } else {
           res(
             JSON.stringify({
               message: 'new project successfully created.',
-              data: project,
+              data: sproject,
             })
           );
         }
@@ -280,9 +209,9 @@ export function editProject(req: any, res: any) {
           project.paid_amount = req.query.paid_amount;
           project.category = category || project.category;
           project.organisation = organisation || project.organisation;
-          project.save((err: any, updProject: any) => {
-            if (err) {
-              res(JSON.stringify({ status: 'error', message: err.message }));
+          project.save((err2: any, updProject: any) => {
+            if (err2) {
+              res(JSON.stringify({ status: 'error', message: err2.message }));
             } else {
               res(
                 JSON.stringify({
@@ -333,10 +262,23 @@ export function getProjectBudgetData(req: any, res: any) {
         res(JSON.stringify({ status: 'error', message: err.message }));
       }
       if (project) {
-        Report.find({ project: project })
+        Report.find({ project: project, isDraft: false })
           .select('budget')
-          .populate('policy_priority')
-          .exec((err: any, reports: any) => {
+          .populate({
+            path: 'policy_priorities',
+            populate: {
+              path: 'policy_priority',
+              model: 'policyPriority',
+            },
+          })
+          .populate({
+            path: 'sdgs',
+            populate: {
+              path: 'sdg',
+              model: 'sdg',
+            },
+          })
+          .exec((err2: any, reports: any) => {
             if (reports) {
               const fReports = exludeReportID
                 ? filter(reports, { _id: exludeReportID })
@@ -346,6 +288,7 @@ export function getProjectBudgetData(req: any, res: any) {
                 JSON.stringify({
                   status: 'success',
                   data: {
+                    reportId: get(reports, '[0]._id', null),
                     totBudget: project.total_amount,
                     remainBudget: project.total_amount - totUsedBudget,
                     person_email: project.person.email,

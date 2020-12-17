@@ -37,15 +37,12 @@ export function getUserGroups(req: any, res: any) {
         .then(response => {
           let result = filter(response.data.groups, g => {
             const splits = g.description.split(',');
-            if (splits.length > 3) {
-              if (splits[3] === 'Insinger') {
-                return true;
-              }
-              return false;
+            if (splits.length > 3 && splits[3] === 'Insinger') {
+              return true;
             }
             return false;
           });
-          if (user.role !== roles.superAdm) {
+          if (get(user, 'role', '') !== roles.superAdm) {
             result = filter(response.data.groups, g => {
               let pass = false;
 
@@ -131,7 +128,7 @@ export function getGroup(req: any, res: any) {
 
 export function addGroup(req: any, res: any) {
   const { user, name, usersToAdd } = req.query;
-  let today = new Date();
+  const today = new Date();
   const dd = today.getDate() < 10 ? `0${today.getDate()}` : today.getDate();
   const mm =
     today.getMonth() + 1 < 10
@@ -193,17 +190,9 @@ export function addGroup(req: any, res: any) {
 }
 
 export function editGroup(req: any, res: any) {
-  const {
-    groupId,
-    name,
-    description,
-    usersToRemove,
-    usersToAdd,
-    user,
-    team,
-  } = req.query;
+  const { groupId, name, description, usersToRemove, usersToAdd } = req.query;
 
-  let today = new Date();
+  const today = new Date();
   const dd = today.getDate() < 10 ? `0${today.getDate()}` : today.getDate();
   const mm =
     today.getMonth() + 1 < 10

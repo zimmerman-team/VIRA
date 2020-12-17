@@ -20,6 +20,10 @@ const reportController = require('./controllers/ReportController');
 const policyPriority = require('./controllers/PolicyPriorityControllerSocket');
 const targetBeneficiary = require('./controllers/TargetBeneficiaryControllerSocket');
 const location = require('./controllers/LocationControllerSocket');
+const PillarController = require('./controllers/VizControllers/PillarController');
+const PriorityAreaController = require('./controllers/VizControllers/PriorityAreaController');
+const TargetGroupController = require('./controllers/VizControllers/TargetGroupController');
+const OneMultiYearController = require('./controllers/VizControllers/OneMultiYearController');
 import {
   getUser,
   getAllUsers,
@@ -294,9 +298,6 @@ IO.sockets.on('connection', (socket: any) => {
   socket.on('editReport', (data: any, fn: any) => {
     reportController.editReport({ query: data }, (res: any) => fn(res));
   });
-  socket.on('updateReport', (data: any, fn: any) => {
-    reportController.updateReport({ query: data }, (res: any) => fn(res));
-  });
   socket.on('oneReport', (data: any, fn: any) => {
     reportController.getReport({ query: data }, (res: any) => fn(res));
   });
@@ -318,6 +319,34 @@ IO.sockets.on('connection', (socket: any) => {
   });
   socket.on('getGeoMapData', (data: any, fn: any) => {
     VizController.getGeoMapData({ query: data }, (res: any) => fn(res));
+  });
+  socket.on('getPillarDataByBudget', (data: any, fn: any) => {
+    PillarController.getPillarDataByBudget({ query: data }, (res: any) =>
+      fn(res)
+    );
+  });
+  socket.on('getPillarDataByDuration', (data: any, fn: any) => {
+    PillarController.getPillarDataByDuration({ query: data }, (res: any) =>
+      fn(res)
+    );
+  });
+  socket.on('getPriorityAreaBarChartData', (data: any, fn: any) => {
+    PriorityAreaController.getPriorityAreaBarChartData(
+      { query: data },
+      (res: any) => fn(res)
+    );
+  });
+  socket.on('getTargetGroupBarChartData', (data: any, fn: any) => {
+    TargetGroupController.getTargetGroupBarChartData(
+      { query: data },
+      (res: any) => fn(res)
+    );
+  });
+  socket.on('getOneMultiYearBarChartData', (data: any, fn: any) => {
+    OneMultiYearController.getOneMultiYearBarChartData(
+      { query: data },
+      (res: any) => fn(res)
+    );
   });
 });
 

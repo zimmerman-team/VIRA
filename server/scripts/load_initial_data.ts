@@ -4,13 +4,18 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 
 // models
-const OrgType = require('../models/orgType');
-const ProjectCategory = require('../models/project_categroy');
-const Organisation = require('../models/Org');
+const SDG = require('../models/sdg');
+const Pillar = require('../models/pillar');
 const Project = require('../models/project');
+const OrgType = require('../models/orgType');
+const Organisation = require('../models/Org');
+const PolicyPriority = require('../models/policyPriority');
+const ProjectCategory = require('../models/project_categroy');
 const ResponsiblePerson = require('../models/responsiblePerson');
 
 // utils
+const fs = require('fs');
+const path = require('path');
 import groupBy from 'lodash/groupBy';
 const csvtojson = require('csvtojson');
 import {
@@ -258,6 +263,7 @@ async function checkAndAddProjects(data: any) {
                       end_date: project.end_date,
                       total_amount: project.total_amount,
                       decision_date: project.decision_date,
+                      decision_date_unix: getDate(project.decision_date),
                       decision: project.decision,
                       allocated_amount: project.allocated_amount,
                       released_amount: project.released_amount,
@@ -265,6 +271,7 @@ async function checkAndAddProjects(data: any) {
                       organisation: organisation,
                       category: category,
                       person: person,
+                      multi_year: project.duration === 'Meerjarig',
                     }).save((err: any, doc: any) => {
                       count++;
                       if (count === totalCount) {
@@ -294,6 +301,79 @@ async function checkAndAddProjects(data: any) {
   });
 }
 
+export function getDate(date: string) {
+  // https://stackoverflow.com/questions/33299687/how-to-convert-dd-mm-yyyy-string-into-javascript-date-object/33299764
+  const dateParts = date.split('-');
+  // month is 0-based, that's why we need dataParts[1] - 1
+  // 19-3-2018 => DD-MM-YYYY
+  return new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0], 12);
+}
+
+function parseStaticData() {
+  const sdgsJson = fs.readFileSync(
+    path.resolve(__dirname, '../assets/static/sdgs.json')
+  );
+  const pillarsJson = fs.readFileSync(
+    path.resolve(__dirname, '../assets/static/pillars.json')
+  );
+  const policyPrioritiesJson = fs.readFileSync(
+    path.resolve(__dirname, '../assets/static/policyPriorities.json')
+  );
+  const sdgs = JSON.parse(sdgsJson);
+  const pillars = JSON.parse(pillarsJson);
+  const policyPriorities = JSON.parse(policyPrioritiesJson);
+  sdgs.forEach((sdg: { code: number; name: string; description: string }) => {
+    SDG.findOne({ code: sdg.code }).then((fSdg: any, err1: any) => {
+      if (!fSdg) {
+        new SDG({
+          code: sdg.code,
+          name: sdg.name,
+          description: sdg.description,
+        }).save((err2: any, doc: any) => {
+          if (err2) {
+            console.log('Error: ', err2);
+          }
+          if (doc) {
+            console.log('SDG created: ', sdg.code);
+          }
+        });
+      }
+    });
+  });
+  pillars.forEach((pillar: string) => {
+    Pillar.findOne({ name: pillar }).then((fPillar: any, err1: any) => {
+      if (!fPillar) {
+        new Pillar({ name: pillar }).save((err2: any, doc: any) => {
+          if (err2) {
+            console.log('Error: ', err2);
+          }
+          if (doc) {
+            console.log('Pillar created: ', pillar);
+          }
+        });
+      }
+    });
+  });
+  policyPriorities.forEach((policyPriority: string) => {
+    PolicyPriority.findOne({ name: policyPriority }).then(
+      (fPolicyPriority: any, err1: any) => {
+        if (!fPolicyPriority) {
+          new PolicyPriority({ name: policyPriority }).save(
+            (err2: any, doc: any) => {
+              if (err2) {
+                console.log('Error: ', err2);
+              }
+              if (doc) {
+                console.log('Policy Priority created: ', policyPriority);
+              }
+            }
+          );
+        }
+      }
+    );
+  });
+}
+
 // main function
 function start() {
   if (!process.env.REACT_APP_DATA_FILE) {
@@ -305,6 +385,7 @@ function start() {
     process.env.REACT_APP_DATA_FILE,
     'file'
   );
+  parseStaticData();
   csvtojson()
     .fromFile(`${__dirname}/${process.env.REACT_APP_DATA_FILE}`)
     .then((csvData: any) => {

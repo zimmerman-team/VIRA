@@ -51,7 +51,10 @@ export function sendMail(
 
 export function sendForgotPassMail(email: string, link: string) {
   return client.sendEmailWithTemplate({
-    TemplateId: 15847923,
+    TemplateId: parseInt(
+      process.env.REACT_APP_POSTMARK_TEMPLATE_RESET as string,
+      10
+    ),
     From: 'insinger@zimmermanzimmerman.nl',
     To: email,
     TemplateModel: { app: 'M&E Insinger', link },

@@ -82,11 +82,14 @@ function checkProjectsAndNotify(projects: any, users: any) {
           return new Promise((resolve2, reject2) => {
             sendMail(
               {
+                name: fUser.username,
                 email: fUser.email,
                 project_name: project.project_name,
                 link: `${process.env.REACT_APP_PROJECT_URL}/projects/${project.project_number}`,
               },
-              18990738,
+              parseInt(
+                process.env.REACT_APP_POSTMARK_TEMPLATE_NOTIFICATION as string
+              ),
               resolve2,
               reject2
             );
