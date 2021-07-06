@@ -96,16 +96,24 @@ REACT_APP_DATA_FILE=<name of the data file in server/scripts, must be a csv file
 
 ## Parse data
 
+In order to parse a new data file, you need to name the file as `production.csv` and place it in the `server/scripts` directory (if there is one already, then replace it).
+
     $ yarn import-data
 
 ## Create and invite users based on data
+
+After parsing a new data file, you can run this command in order to invite new users based on the parsed data.
 
     $ yarn check-invite-new-users
 
 ## Running the project
 
+Run project locally.
+
     $ yarn start
 
 ## Run tests
+
+Test project functionality locally.
 
     $ yarn start-test-api
